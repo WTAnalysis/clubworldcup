@@ -2017,6 +2017,8 @@ if matchlink:
         #playercarry = playercarry.loc[playercarry['team_name']=='Bradford']
         playercarry = playercarry.loc[playercarry['end_y']> 0]
         playercarry = playercarry.loc[playercarry['end_x']> 0]
+        playercarry = playercarry.loc[playercarry['x']> 2.5]
+
         playercarry = playercarry.loc[playercarry['end_y']< 100]
         playercarry = playercarry.loc[playercarry['end_x']< 100]
         playercarry = playercarry.loc[playercarry['end_x'] < 99.5]
