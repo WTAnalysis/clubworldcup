@@ -27,6 +27,7 @@ st.title("WT Analysis - Player Match Visuals")
 # Inputs
 import pandas as pd
 from datetime import datetime
+matchlink = None
 
 # Load match schedule
 schedule_df = pd.read_csv("FCWC_2025.csv")
@@ -1920,6 +1921,8 @@ if matchlink:
 
         # Output the result
         print(f"Color properties for {league}: {league_colors_properties}")
+        player_list = starting_lineups["player_name"].dropna().unique().tolist()
+
         player_options = ["-- Select a player --"] + sorted(player_list)
         
         # Player dropdown
