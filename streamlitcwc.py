@@ -25,7 +25,30 @@ st.set_page_config(page_title="WT Analysis Tool", layout="wide")
 st.title("WT Analysis - Player Match Visuals")
 
 # Inputs
-matchlink = st.text_input("Enter Match Link")
+import pandas as pd
+from datetime import datetime
+
+# Load match schedule
+schedule_df = pd.read_csv("FCWC_2025.csv")
+schedule_df = schedule_df.dropna(subset=["description"])
+schedule_df["date"] = pd.to_datetime(schedule_df["date"], format="%d/%m/%Y")
+
+# Filter to past matches only and sort ascending
+today = pd.to_datetime(datetime.today().date())
+schedule_df = schedule_df[schedule_df["date"] <= today]
+schedule_df = schedule_df.sort_values(by="date")
+
+# Create dropdown options (with empty default)
+options = ["-- Select a match --"] + schedule_df["description"].tolist()
+selected_description = st.selectbox("Select a Match", options=options)
+
+# Only assign matchlink if a valid match is selected
+if selected_description != "-- Select a match --":
+    matchlink = schedule_df[schedule_df["description"] == selected_description]["id"].values[0]
+    st.info(f"Analyzing match: {selected_description}")
+    # 👉 Your matchlink-dependent logic starts here
+else:
+    st.warning("Please select a match to begin.")
 
 if matchlink:
     st.info(f"Analyzing {matchlink}...")
