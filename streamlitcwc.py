@@ -21,8 +21,8 @@ from matplotlib.colors import LinearSegmentedColormap
 import matplotlib.patheffects as path_effects
 import matplotlib.patches as patches
 
-st.set_page_config(page_title="WT Analysis Tool", layout="wide")
-st.title("WT Analysis - Player Match Visuals")
+st.set_page_config(page_title="WT Analysis - Club World Cup", layout="wide")
+st.title("WT Analysis - Club World Cup Visuals")
 
 # Inputs
 import pandas as pd
