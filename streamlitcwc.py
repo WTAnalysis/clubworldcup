@@ -28,28 +28,31 @@ st.title("WT Analysis - FIFA Club World Cup - Player Visuals")
 import pandas as pd
 from datetime import datetime
 
+import pandas as pd
+from datetime import datetime
+
 # Load match schedule
 schedule_df = pd.read_csv("FCWC_2025.csv")
-
-# Drop rows without a description (incomplete entries)
 schedule_df = schedule_df.dropna(subset=["description"])
-
-# Convert 'date' column to datetime objects
 schedule_df["date"] = pd.to_datetime(schedule_df["date"], format="%d/%m/%Y")
 
-# Filter: keep only matches up to today
+# Filter to past matches only and sort ascending
 today = pd.to_datetime(datetime.today().date())
 schedule_df = schedule_df[schedule_df["date"] <= today]
+schedule_df = schedule_df.sort_values(by="date")
 
-# Sort by date ascending
-schedule_df = schedule_df.sort_values(by="date", ascending=True)
+# Create dropdown options (with empty default)
+options = ["-- Select a match --"] + schedule_df["description"].tolist()
+selected_description = st.selectbox("Select a Match", options=options)
 
-# Create dropdown from 'description' column
-match_map = dict(zip(schedule_df["description"], schedule_df["id"]))
-selected_description = st.selectbox("Select a Match", options=list(match_map.keys()))
+# Only assign matchlink if a valid match is selected
+if selected_description != "-- Select a match --":
+    matchlink = schedule_df[schedule_df["description"] == selected_description]["id"].values[0]
+    st.info(f"Analyzing match: {selected_description}")
+    # 👉 Your matchlink-dependent logic starts here
+else:
+    st.warning("Please select a match to begin.")
 
-# Get match ID from selection
-matchlink = match_map[selected_description]
 
 
 if matchlink:
