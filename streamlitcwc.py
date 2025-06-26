@@ -51,7 +51,7 @@ else:
     st.warning("Please select a match to begin.")
 
 if matchlink:
-    st.info(f"Analyzing {matchlink}...")
+    #st.info(f"Analyzing {matchlink}...")
 
     url = f'https://api.performfeeds.com/soccerdata/matchevent/ft1tiv1inq7v1sk3y9tv12yh5/{matchlink}?_rt=c&_lcl=en&_fmt=jsonp&sps=widgets&_clbk=W351bc3acc0d0c4e5b871ac99dfbfeb44bb58ba1dc'
     headers = {
@@ -1649,7 +1649,7 @@ if matchlink:
 
         starting_lineups = starting_lineups.drop_duplicates(subset=['player_id', 'match_id'], keep='first')
 
-        league = 'ENG-Premier League'
+        league = 'INT-FIFACWC'
         league_colors = {
             "ENG-FACup": {
                 "TextColor": "white",
@@ -1659,6 +1659,15 @@ if matchlink:
                 "SonarPass": "#e5e1e0",
                 "SonarCarry": "darkblue",
                 "HullColor": "red"
+            },
+            "INT-FIFACWC": {
+                "TextColor": "white",
+                "BackgroundColor": "black",
+                "PitchColor": "#e5e6b1",
+                "PitchLineColor": "white",
+                "SonarPass": "red",
+                "SonarCarry": "yellow",
+                "HullColor": "black"
             },
             "ENG-LeagueCup": {
                 "TextColor": "black",
@@ -1911,14 +1920,17 @@ if matchlink:
 
         # Output the result
         print(f"Color properties for {league}: {league_colors_properties}")
-        player_list = sorted(starting_lineups['player_name'].dropna().unique())
-
-# Show player dropdown in sidebar
-        playername = st.selectbox("Select Player Name", player_list)
-
-# Info message after selection
-        if playername:
+        player_options = ["-- Select a player --"] + sorted(player_list)
+        
+        # Player dropdown
+        playername = st.selectbox("Select Player Name", options=player_options)
+        
+        # Only show analysis if a valid player is selected
+        if playername != "-- Select a player --":
             st.info(f"Analyzing {playername} in match {matchlink}...")
+            # 👉 Your analysis logic goes here
+        else:
+            st.warning("Please select a player to view analysis.")
         # Example usage for visuals
         TextColor = league_colors_properties["TextColor"]
         BackgroundColor = league_colors_properties["BackgroundColor"]
