@@ -2025,7 +2025,7 @@ if matchlink:
         playercarry = playercarry.loc[playercarry['y_diff']>-25]
         playercarry = playercarry.loc[playercarry['y_diff']<25]
         player_carry = player_carry[~(((player_carry['x'] == 0) & (player_carry['y'] == 0)) | 
-                              ((player_carry['end_x'] == 0) & (player_carry['end_y'] == 0)))]
+        ((player_carry['end_x'] == 0) & (player_carry['end_y'] == 0)))]
 
         #teamname = anderson.iloc[0]['team_name']
         teamlogoid = teamdata.loc[teamdata['name'] == teamname, 'id'].values[0]
