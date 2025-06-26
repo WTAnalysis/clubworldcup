@@ -28,6 +28,7 @@ st.title("WT Analysis - Player Match Visuals")
 import pandas as pd
 from datetime import datetime
 matchlink = None
+playername = None
 
 # Load match schedule
 schedule_df = pd.read_csv("FCWC_2025.csv")
