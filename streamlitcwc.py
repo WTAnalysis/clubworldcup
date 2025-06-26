@@ -1931,11 +1931,17 @@ if matchlink:
         
         # Only show analysis if a valid player is selected
         if playername != "-- Select a player --":
-            st.info(f"Analyzing {playername} in match {matchlink}...")
-            # 👉 Your analysis logic goes here
+            anderson = starting_lineups[starting_lineups["player_name"] == playername]
+        
+            if not anderson.empty:
+                teamname = anderson.iloc[0]['team_name']
+                # 🧠 Continue with analysis logic
+                st.info(f"{playername} plays for {teamname}")
+            else:
+                st.warning("Player data could not be found in the lineup.")
         else:
             st.warning("Please select a player to view analysis.")
-        # Example usage for visuals
+
         TextColor = league_colors_properties["TextColor"]
         BackgroundColor = league_colors_properties["BackgroundColor"]
         PitchColor = league_colors_properties["PitchColor"]
@@ -2017,7 +2023,7 @@ if matchlink:
         playercarry['y_diff'] = playercarry['y'] - playercarry['end_y']
         playercarry = playercarry.loc[playercarry['y_diff']>-25]
         playercarry = playercarry.loc[playercarry['y_diff']<25]
-        teamname = anderson.iloc[0]['team_name']
+        #teamname = anderson.iloc[0]['team_name']
         teamlogoid = teamdata.loc[teamdata['name'] == teamname, 'id'].values[0]
         opponentname2 = teamdata.loc[teamdata['name'] != teamname, 'name'].values[0]
 
