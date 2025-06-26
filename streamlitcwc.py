@@ -54,7 +54,18 @@ else:
     st.warning("Please select a match to begin.")
 
 
+if selected_description != "-- Select a match --":
+    matchlink = schedule_df[schedule_df["description"] == selected_description]["id"].values[0]
+    st.info(f"Analyzing match: {selected_description}")
+    
     url = f'https://api.performfeeds.com/soccerdata/matchevent/ft1tiv1inq7v1sk3y9tv12yh5/{matchlink}?_rt=c&_lcl=en&_fmt=jsonp&sps=widgets&_clbk=W351bc3acc0d0c4e5b871ac99dfbfeb44bb58ba1dc'
+    
+    # ✅ Your full downstream logic goes inside this block:
+    # - request to the API
+    # - parsing the response
+    # - all subsequent event processing
+else:
+    st.warning("Please select a match to begin.")
     headers = {
         'Referer': 'https://www.scoresway.com/',
         'User-Agent': 'Mozilla/5.0',
