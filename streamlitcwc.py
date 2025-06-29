@@ -89,7 +89,7 @@ while True:
 schedule_df = pd.DataFrame(all_matches)
 schedule_df[['Home_Team', 'Away_Team']] = schedule_df['description'].str.split(' vs ', expand=True)
 schedule_df['date'] = schedule_df['date'].str.replace('Z', '', regex=False)
-schedule_df['date'] = pd.to_datetime(schedule_df['date'], errors='coerce').dt.strftime('%d/%m/%Y')
+schedule_df['date'] = pd.to_datetime(schedule_df['date'].str.replace('Z', '', regex=False), errors='coerce')
 schedule_df = schedule_df.dropna(subset=["description"])
 # Filter to past matches only and sort ascending
 today = pd.to_datetime(datetime.today().date())
