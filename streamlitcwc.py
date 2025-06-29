@@ -1921,8 +1921,16 @@ if matchlink:
             "HullColor": "default"
 
         })
-        tab1, tab2 = st.tabs(["Player Visuals", "Match Momentum"])
         
+        tab1, tab2 = st.tabs(["Player Visuak", "Match Momentum"])
+        
+        with tab1:
+            st.write("Player Visuals")
+            # include existing code or visuals
+        
+        with tab2:
+            st.write("Match Momentum")
+            # e.g. show another dataframe or chart
         with tab2:
             st.header("Match Momentum Visual")
         
