@@ -1976,11 +1976,8 @@ if matchlink:
 
         })
         
-        tab1, tab2 = st.tabs(["Player Visuak", "Match Momentum"])
+        tab1, tab2 = st.tabs(["Player Visual", "Match Momentum"])
         
-        with tab1:
-            st.write("Player Visuals")
-            # include existing code or visuals
         
         with tab2:
             st.write("Match Momentum")
@@ -2079,6 +2076,9 @@ if matchlink:
         
         # Player dropdown
         playername = st.selectbox("Select Player Name", options=player_options)
+        with tab1:
+            st.write("Player Visuals")
+            # include existing code or visuals
         
         # Only show analysis if a valid player is selected
         if playername != "-- Select a player --":
