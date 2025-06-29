@@ -1979,94 +1979,6 @@ if matchlink:
         tab1, tab2 = st.tabs(["Player Visual", "Match Momentum"])
         
         
-        with tab2:
-            st.write("Match Momentum")
-            # e.g. show another dataframe or chart
-        with tab2:
-            st.header("Match Momentum Visual")
-        
-            import matplotlib.pyplot as plt
-            import numpy as np
-            from matplotlib.offsetbox import OffsetImage, AnnotationBbox
-            from scipy.interpolate import make_interp_spline
-            from urllib.request import urlopen
-            from PIL import Image
-        
-            # Prepare pivot dataframe
-            pivot_df = df.pivot_table(index='timeMin', columns='team_name', values='xT_value', aggfunc='sum')
-            pivot_df.reset_index(inplace=True)
-            for column in pivot_df.columns:
-                pivot_df[column].fillna(0, inplace=True)
-            pivot_df['score_difference'] = pivot_df[teamname] - pivot_df[opponentname]
-            pivot_df['rolling_avg_score_difference'] = pivot_df['score_difference'].rolling(window=5, min_periods=1).mean()
-        
-            # Prepare goal times
-            goals = df[df['typeId'].isin(['Goal', 'Own Goal'])]
-            goal_time = goals['timeMin']
-        
-            # Prepare halftime and fulltime
-            halftime = df[df['periodId'] == 1]['timeMin'].max()
-            fulltime = df[df['periodId'] == 2]['timeMin'].max()
-        
-            # Load team logos and football image (football.png must be in repo directory)
-            hometeamlogo = teamdata.iloc[0, 0]
-            awayteamlogo = teamdata.iloc[1, 0]
-            HOMEURL = f"https://omo.akamai.opta.net/image.php?h=www.scoresway.com&sport=football&entity=team&description=badges&dimensions=150&id={hometeamlogo}"
-            AWAYURL = f"https://omo.akamai.opta.net/image.php?h=www.scoresway.com&sport=football&entity=team&description=badges&dimensions=150&id={awayteamlogo}"
-            homeimage = Image.open(urlopen(HOMEURL))
-            awayimage = Image.open(urlopen(AWAYURL))
-            footballimage = Image.open('football.png')
-        
-            # Create plot
-            fig, ax = plt.subplots(figsize=(10,6))
-            ax.set_facecolor('#f5f6fc')
-            x = pivot_df['timeMin']
-            y = pivot_df['rolling_avg_score_difference']
-            spl = make_interp_spline(x, y, k=3)
-            x_smooth = np.linspace(x.min(), x.max(), 300)
-            y_smooth = spl(x_smooth)
-        
-            ax.fill_between(x_smooth, y_smooth, where=(y_smooth >= 0), interpolate=True, color='red', alpha=0.45, edgecolor='white')
-            ax.fill_between(x_smooth, y_smooth, where=(y_smooth < 0), interpolate=True, color='blue', alpha=0.45, edgecolor='white')
-        
-            # Add football icons for goals
-            for goal_min in goal_time:
-                closest_idx = (pivot_df['timeMin'] - goal_min).abs().idxmin()
-                y_value = pivot_df.loc[closest_idx, 'rolling_avg_score_difference']
-                img_y_pos = y_value + 0.115 if y_value >= 0 else y_value - 0.115
-                imagebox_goal = OffsetImage(footballimage, zoom=0.035, alpha=0.75)
-                ab_goal = AnnotationBbox(imagebox_goal, (goal_min, img_y_pos), frameon=False)
-                ax.add_artist(ab_goal)
-        
-            # Halftime and fulltime lines
-            if pd.notna(halftime):
-                ax.axvline(x=halftime, color='green', linestyle='--', linewidth=1)
-            if pd.notna(fulltime) and fulltime >= 90:
-                ax.axvline(x=fulltime, color='green', linestyle='--', linewidth=1)
-
-        
-            ax.set_title(f'{teamname} v {opponentname} Match Momentum')
-            ax.set_xlabel('Minute')
-            ax.set_ylabel('')
-            ax.set_ylim(-1.5, 1.5)
-            ax.set_yticks([])
-            ax.axhline(y=0, color='black', linewidth=0.8)
-            ax.grid(True, which='both', linestyle='--', linewidth=0.5, color='gray')
-        
-            # Add team logos
-            imagebox_home = OffsetImage(homeimage, zoom=0.5, alpha=0.1)
-            ab_home = AnnotationBbox(imagebox_home, (5, 1), frameon=False)
-            ax.add_artist(ab_home)
-        
-            imagebox_away = OffsetImage(awayimage, zoom=0.5, alpha=0.1)
-            ab_away = AnnotationBbox(imagebox_away, (pivot_df['timeMin'].max()-5, -1), frameon=False)
-            ax.add_artist(ab_away)
-            
-            imagebox_logo = OffsetImage(wtaimaged, zoom=0.1, alpha=0.25)
-            ab_logo = AnnotationBbox(imagebox_logo, (5, -1), frameon=False)
-            ax.add_artist(ab_logo)
-               
-            st.pyplot(fig)        ## STEP 8 - sendings off
 
         # Output the result
         print(f"Color properties for {league}: {league_colors_properties}")
@@ -2362,7 +2274,96 @@ if matchlink:
         #                     alpha=1, interpolation='hanning')
         dpi = 600
         st.pyplot(fig)
+
         st.success("Analysis Complete!")
+        with tab2:
+            st.write("Match Momentum")
+            # e.g. show another dataframe or chart
+        with tab2:
+            st.header("Match Momentum Visual")
+        
+            import matplotlib.pyplot as plt
+            import numpy as np
+            from matplotlib.offsetbox import OffsetImage, AnnotationBbox
+            from scipy.interpolate import make_interp_spline
+            from urllib.request import urlopen
+            from PIL import Image
+        
+            # Prepare pivot dataframe
+            pivot_df = df.pivot_table(index='timeMin', columns='team_name', values='xT_value', aggfunc='sum')
+            pivot_df.reset_index(inplace=True)
+            for column in pivot_df.columns:
+                pivot_df[column].fillna(0, inplace=True)
+            pivot_df['score_difference'] = pivot_df[teamname] - pivot_df[opponentname]
+            pivot_df['rolling_avg_score_difference'] = pivot_df['score_difference'].rolling(window=5, min_periods=1).mean()
+        
+            # Prepare goal times
+            goals = df[df['typeId'].isin(['Goal', 'Own Goal'])]
+            goal_time = goals['timeMin']
+        
+            # Prepare halftime and fulltime
+            halftime = df[df['periodId'] == 1]['timeMin'].max()
+            fulltime = df[df['periodId'] == 2]['timeMin'].max()
+        
+            # Load team logos and football image (football.png must be in repo directory)
+            hometeamlogo = teamdata.iloc[0, 0]
+            awayteamlogo = teamdata.iloc[1, 0]
+            HOMEURL = f"https://omo.akamai.opta.net/image.php?h=www.scoresway.com&sport=football&entity=team&description=badges&dimensions=150&id={hometeamlogo}"
+            AWAYURL = f"https://omo.akamai.opta.net/image.php?h=www.scoresway.com&sport=football&entity=team&description=badges&dimensions=150&id={awayteamlogo}"
+            homeimage = Image.open(urlopen(HOMEURL))
+            awayimage = Image.open(urlopen(AWAYURL))
+            footballimage = Image.open('football.png')
+        
+            # Create plot
+            fig, ax = plt.subplots(figsize=(10,6))
+            ax.set_facecolor('#f5f6fc')
+            x = pivot_df['timeMin']
+            y = pivot_df['rolling_avg_score_difference']
+            spl = make_interp_spline(x, y, k=3)
+            x_smooth = np.linspace(x.min(), x.max(), 300)
+            y_smooth = spl(x_smooth)
+        
+            ax.fill_between(x_smooth, y_smooth, where=(y_smooth >= 0), interpolate=True, color='red', alpha=0.45, edgecolor='white')
+            ax.fill_between(x_smooth, y_smooth, where=(y_smooth < 0), interpolate=True, color='blue', alpha=0.45, edgecolor='white')
+        
+            # Add football icons for goals
+            for goal_min in goal_time:
+                closest_idx = (pivot_df['timeMin'] - goal_min).abs().idxmin()
+                y_value = pivot_df.loc[closest_idx, 'rolling_avg_score_difference']
+                img_y_pos = y_value + 0.115 if y_value >= 0 else y_value - 0.115
+                imagebox_goal = OffsetImage(footballimage, zoom=0.035, alpha=0.75)
+                ab_goal = AnnotationBbox(imagebox_goal, (goal_min, img_y_pos), frameon=False)
+                ax.add_artist(ab_goal)
+        
+            # Halftime and fulltime lines
+            if pd.notna(halftime):
+                ax.axvline(x=halftime, color='green', linestyle='--', linewidth=1)
+            if pd.notna(fulltime) and fulltime >= 90:
+                ax.axvline(x=fulltime, color='green', linestyle='--', linewidth=1)
+
+        
+            ax.set_title(f'{teamname} v {opponentname} Match Momentum')
+            ax.set_xlabel('Minute')
+            ax.set_ylabel('')
+            ax.set_ylim(-1.5, 1.5)
+            ax.set_yticks([])
+            ax.axhline(y=0, color='black', linewidth=0.8)
+            ax.grid(True, which='both', linestyle='--', linewidth=0.5, color='gray')
+        
+            # Add team logos
+            imagebox_home = OffsetImage(homeimage, zoom=0.5, alpha=0.1)
+            ab_home = AnnotationBbox(imagebox_home, (5, 1), frameon=False)
+            ax.add_artist(ab_home)
+        
+            imagebox_away = OffsetImage(awayimage, zoom=0.5, alpha=0.1)
+            ab_away = AnnotationBbox(imagebox_away, (pivot_df['timeMin'].max()-5, -1), frameon=False)
+            ax.add_artist(ab_away)
+            
+            imagebox_logo = OffsetImage(wtaimaged, zoom=0.1, alpha=0.25)
+            ab_logo = AnnotationBbox(imagebox_logo, (5, -1), frameon=False)
+            ax.add_artist(ab_logo)
+               
+            st.pyplot(fig)        ## STEP 8 - sendings off
 
 
 
