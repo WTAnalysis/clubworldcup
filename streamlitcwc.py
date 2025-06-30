@@ -2266,10 +2266,10 @@ if matchlink:
 
         #ax_image = add_image(playerimage, fig, left=0.45, bottom=-0.045, width=0.03,
         #                     alpha=1, interpolation='hanning')
-        ax_image = add_image(teamimage, fig, left=0.5675, bottom=-0.049, width=0.055,
+        ax_image = add_image(teamimage, fig, left=0.5375, bottom=-0.049, width=0.055,
                              alpha=1, interpolation='hanning')
 
-        ax_image = add_image(wtaimaged, fig, left=0.4075, bottom=-0.029, width=0.055,
+        ax_image = add_image(wtaimaged, fig, left=0.4375, bottom=-0.029, width=0.055,
                              alpha=1, interpolation='hanning')
         #ax_image = add_image(leagueimage, fig, left=0.565, bottom=-0.03175, width=0.03,
         #                     alpha=1, interpolation='hanning')
