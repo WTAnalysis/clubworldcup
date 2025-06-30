@@ -2236,17 +2236,22 @@ if matchlink:
         #axes[0].text(37, -5, 'Shot Assist', ha='center', fontsize=9, color='orange')
         #axes[0].text(21, -5, 'Assist', ha='center', fontsize=9, color='blue')
         #axes[0].text(5, -5, 'Ball Carry', ha='center', fontsize=9, color='#f4ffb5')
+        from matplotlib.lines import Line2D
 
         legend_labels = ['Completed Pass', 'Incompleted Pass', 'Shot Assist', 'Assist', 'Ball Carry']
         legend_colors = ['green', 'red', 'orange', 'blue', 'purple']
-        legend_lines = [((0, 0), (1, 0), color) for color in legend_colors]  # Lines from (0,0) to (1,0) of each color
-
-
-        for line, label in zip(legend_lines, legend_labels):
-            axes[0].plot(*line, label=label, linewidth=3)  # Plot thick lines instead of dots
-
-        legend = axes[0].legend(loc='upper right', bbox_to_anchor=(0.5, -0.02), ncol=1, facecolor=BackgroundColor, frameon=False,labelcolor =TextColor)
-        #axes[0].set_axis_off()  # Remove axis
+        
+        # Create Line2D handles for legend
+        legend_lines = [Line2D([0], [0], color=color, linewidth=3) for color in legend_colors]
+        
+        # Add legend under pitch 1
+        axes[0].legend(legend_lines, legend_labels,
+                       loc='upper center',
+                       bbox_to_anchor=(0.22, -0.02),  # Adjust vertical position as needed
+                       ncol=1,
+                       facecolor=BackgroundColor,
+                       frameon=False,
+                       labelcolor=TextColor)
 
         axes[0].text(50, -5, 'Data from Opta', ha='center', fontsize=9, color=TextColor)
         axes[0].text(25, -9, 'Opponent:', ha='center', fontsize=14, color=TextColor)
