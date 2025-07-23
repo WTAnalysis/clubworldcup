@@ -151,13 +151,7 @@ if not schedule_df.empty and 'description' in schedule_df.columns:
 else:
     st.info("Please select a Season and Competition to continue.")
     
-# Only assign matchlink if a valid match is selected
-if selected_description != "-- Select a match --":
-    matchlink = schedule_df[schedule_df["description"] == selected_description]["id"].values[0]
-    st.info(f"Analyzing match: {selected_description}")
-    # 👉 Your matchlink-dependent logic starts here
-else:
-    st.warning("Please select a match to begin.")
+
 
 if matchlink:
     #st.info(f"Analyzing {matchlink}...")
