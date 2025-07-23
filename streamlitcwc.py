@@ -131,17 +131,22 @@ if not schedule_df.empty and 'description' in schedule_df.columns:
     schedule_df['date'] = schedule_df['date'].str.replace('Z', '', regex=False)
     schedule_df['date'] = pd.to_datetime(schedule_df['date'], errors='coerce')
     schedule_df = schedule_df.dropna(subset=["description"])
+    
     today = pd.to_datetime(datetime.today().date())
-    ten_days_ago = today - pd.Timedelta(days=14)  # Previous 9 + today = 10 days total
+    ten_days_ago = today - pd.Timedelta(days=14)
     schedule_df = schedule_df[(schedule_df["date"] >= ten_days_ago) & (schedule_df["date"] <= today)]
     schedule_df = schedule_df.sort_values(by="date")
 
-    options = ["-- Select a match --"] + schedule_df["description"].tolist()
+    schedule_df['formatted_date'] = schedule_df['date'].dt.strftime('%d/%m/%y')
+    schedule_df['display'] = schedule_df['Home_Team'] + ' v ' + schedule_df['Away_Team'] + ' - ' + schedule_df['formatted_date']
+
+    match_dict = dict(zip(schedule_df['display'], schedule_df['id']))
+    options = ["-- Select a match --"] + schedule_df["display"].tolist()
     selected_description = st.selectbox("Select a Match", options=options)
 
     if selected_description != "-- Select a match --":
         if 'description' in schedule_df.columns and 'id' in schedule_df.columns:
-            match_row = schedule_df[schedule_df["description"] == selected_description]
+            match_row = schedule_df[schedule_df['display'] == selected_description]
             if not match_row.empty:
                 matchlink = match_row["id"].values[0]
                 st.info(f"Analyzing match: {selected_description}")
