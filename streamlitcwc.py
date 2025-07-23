@@ -135,7 +135,7 @@ if not schedule_df.empty and 'description' in schedule_df.columns:
     today = pd.to_datetime(datetime.today().date())
     ten_days_ago = today - pd.Timedelta(days=14)
     schedule_df = schedule_df[(schedule_df["date"] >= ten_days_ago) & (schedule_df["date"] <= today)]
-    schedule_df = schedule_df.sort_values(by="date")
+    schedule_df = schedule_df.sort_values(by="date", ascending=False)
 
     schedule_df['formatted_date'] = schedule_df['date'].dt.strftime('%d/%m/%y')
     schedule_df['display'] = schedule_df['Home_Team'] + ' v ' + schedule_df['Away_Team'] + ' - ' + schedule_df['formatted_date']
