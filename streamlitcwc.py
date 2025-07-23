@@ -25,7 +25,9 @@ from PIL import Image
 wtaimaged = Image.open("wtatransnew.png")
 st.set_page_config(page_title="WT Analysis - Club World Cup", layout="wide")
 st.title("WT Analysis - Club World Cup Visuals")
-
+schedule_df = pd.DataFrame()
+selected_description = None
+matchlink = None
 # Inputs
 import pandas as pd
 from datetime import datetime
@@ -72,7 +74,6 @@ headers = {
     'Referer': 'https://www.scoresway.com/',
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36'
 }
-selected_description = None  # Ensure it's always defined
 
 if dataafterleague:
     all_matches = []
@@ -135,6 +136,8 @@ if dataafterleague:
             st.info(f"Analyzing match: {selected_description}")
         else:
             st.warning("Please select a match to begin.")
+    else:
+        st.warning("No matches found for the selected competition.")
 else:
     st.info("Please select a Season and Competition to continue.")
 
