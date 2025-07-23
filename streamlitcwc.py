@@ -132,7 +132,8 @@ if not schedule_df.empty and 'description' in schedule_df.columns:
     schedule_df['date'] = pd.to_datetime(schedule_df['date'], errors='coerce')
     schedule_df = schedule_df.dropna(subset=["description"])
     today = pd.to_datetime(datetime.today().date())
-    schedule_df = schedule_df[schedule_df["date"] <= today]
+    ten_days_ago = today - pd.Timedelta(days=14)  # Previous 9 + today = 10 days total
+    schedule_df = schedule_df[(schedule_df["date"] >= ten_days_ago) & (schedule_df["date"] <= today)]
     schedule_df = schedule_df.sort_values(by="date")
 
     options = ["-- Select a match --"] + schedule_df["description"].tolist()
