@@ -73,61 +73,70 @@ headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36'
 }
 
-all_matches = []
-page = 1
-page_size = 400
+if dataafterleague:
+    all_matches = []
+    page = 1
+    page_size = 400
 
-while True:
-    callback = "W385e5c699195bebaec15e4789d8caa477937fcb98"
-    schedule_url = (
-        f"https://api.performfeeds.com/soccerdata/match/ft1tiv1inq7v1sk3y9tv12yh5/"
-        f"?_rt=c&tmcl={dataafterleague}&live=yes&_pgSz={page_size}&_pgNm={page}"
-        f"&_lcl=en&_fmt=jsonp&sps=widgets&_clbk={callback}"
-    )
-    response = requests.get(schedule_url, headers=headers)
-    if response.status_code != 200:
-        st.warning(f"Failed to retrieve page {page}. Status code: {response.status_code}")
-        break
-
-    try:
-        jsonp_data = response.text
-        json_str = re.search(r'\((.*)\)', jsonp_data).group(1)
-        schedule_data = json.loads(json_str)
-        matches = schedule_data.get('match', [])
-        if not matches:
+    while True:
+        callback = "W385e5c699195bebaec15e4789d8caa477937fcb98"
+        schedule_url = (
+            f"https://api.performfeeds.com/soccerdata/match/ft1tiv1inq7v1sk3y9tv12yh5/"
+            f"?_rt=c&tmcl={dataafterleague}&live=yes&_pgSz={page_size}&_pgNm={page}"
+            f"&_lcl=en&_fmt=jsonp&sps=widgets&_clbk={callback}"
+        )
+        response = requests.get(schedule_url, headers=headers)
+        if response.status_code != 200:
+            st.warning(f"Failed to retrieve page {page}. Status code: {response.status_code}")
             break
 
-        if not isinstance(matches, list):
-            matches = [matches]
+        try:
+            jsonp_data = response.text
+            json_str = re.search(r'\((.*)\)', jsonp_data).group(1)
+            schedule_data = json.loads(json_str)
+            matches = schedule_data.get('match', [])
+            if not matches:
+                break
 
-        for match in matches:
-            match_info = match.get('matchInfo', {})
-            if match_info:
-                all_matches.append({
-                    'id': match_info.get('id'),
-                    'description': match_info.get('description'),
-                    'date': match_info.get('date'),
-                    'time': match_info.get('time')
-                })
-        page += 1
+            if not isinstance(matches, list):
+                matches = [matches]
 
-    except Exception as e:
-        st.warning(f"Error parsing page {page}: {e}")
-        break
+            for match in matches:
+                match_info = match.get('matchInfo', {})
+                if match_info:
+                    all_matches.append({
+                        'id': match_info.get('id'),
+                        'description': match_info.get('description'),
+                        'date': match_info.get('date'),
+                        'time': match_info.get('time')
+                    })
+            page += 1
 
-schedule_df = pd.DataFrame(all_matches)
-schedule_df[['Home_Team', 'Away_Team']] = schedule_df['description'].str.split(' vs ', expand=True)
-schedule_df['date'] = schedule_df['date'].str.replace('Z', '', regex=False)
-schedule_df['date'] = pd.to_datetime(schedule_df['date'].str.replace('Z', '', regex=False), errors='coerce')
-schedule_df = schedule_df.dropna(subset=["description"])
-# Filter to past matches only and sort ascending
-today = pd.to_datetime(datetime.today().date())
-schedule_df = schedule_df[schedule_df["date"] <= today]
-schedule_df = schedule_df.sort_values(by="date")
+        except Exception as e:
+            st.warning(f"Error parsing page {page}: {e}")
+            break
 
-# Create dropdown options (with empty default)
-options = ["-- Select a match --"] + schedule_df["description"].tolist()
-selected_description = st.selectbox("Select a Match", options=options)
+    schedule_df = pd.DataFrame(all_matches)
+    if not schedule_df.empty and 'description' in schedule_df.columns:
+        schedule_df[['Home_Team', 'Away_Team']] = schedule_df['description'].str.split(' vs ', expand=True)
+        schedule_df['date'] = schedule_df['date'].str.replace('Z', '', regex=False)
+        schedule_df['date'] = pd.to_datetime(schedule_df['date'], errors='coerce')
+        schedule_df = schedule_df.dropna(subset=["description"])
+        today = pd.to_datetime(datetime.today().date())
+        schedule_df = schedule_df[schedule_df["date"] <= today]
+        schedule_df = schedule_df.sort_values(by="date")
+
+        options = ["-- Select a match --"] + schedule_df["description"].tolist()
+        selected_description = st.selectbox("Select a Match", options=options)
+
+        if selected_description != "-- Select a match --":
+            matchlink = schedule_df[schedule_df["description"] == selected_description]["id"].values[0]
+            st.info(f"Analyzing match: {selected_description}")
+        else:
+            st.warning("Please select a match to begin.")
+else:
+    st.info("Please select a Season and Competition to continue.")
+
 
 # Only assign matchlink if a valid match is selected
 if selected_description != "-- Select a match --":
