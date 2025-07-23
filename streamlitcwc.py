@@ -40,6 +40,10 @@ import pandas as pd
 
 league_dict = pd.read_excel("league_dict.xlsx")
 
+# Ensure columns are strings
+league_dict['Season'] = league_dict['Season'].astype(str)
+league_dict['Competition'] = league_dict['Competition'].astype(str)
+
 # Dropdown to select Season
 season_options = sorted(league_dict['Season'].dropna().unique())
 selected_season = st.selectbox("Select Season", ["-- Select Season --"] + season_options)
@@ -63,6 +67,7 @@ if selected_season != "-- Select Season --" and selected_competition != "-- Sele
         st.success(f"Selected competition ID: {dataafterleague}")
     else:
         st.warning("No matching competition found.")
+        
 headers = {
     'Referer': 'https://www.scoresway.com/',
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36'
