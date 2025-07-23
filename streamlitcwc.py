@@ -139,11 +139,15 @@ if not schedule_df.empty and 'description' in schedule_df.columns:
     selected_description = st.selectbox("Select a Match", options=options)
 
     if selected_description != "-- Select a match --":
-        try:
-            matchlink = schedule_df[schedule_df["description"] == selected_description]["id"].values[0]
-            st.info(f"Analyzing match: {selected_description}")
-        except IndexError:
-            st.error("Something went wrong selecting the match.")
+        if 'description' in schedule_df.columns and 'id' in schedule_df.columns:
+            match_row = schedule_df[schedule_df["description"] == selected_description]
+            if not match_row.empty:
+                matchlink = match_row["id"].values[0]
+                st.info(f"Analyzing match: {selected_description}")
+            else:
+                st.warning("Selected match not found in data.")
+        else:
+            st.error("Match data is incomplete. Please check API response or retry.")
 else:
     st.info("Please select a Season and Competition to continue.")
     
