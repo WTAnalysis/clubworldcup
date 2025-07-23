@@ -75,7 +75,12 @@ headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36'
 }
 
+schedule_df = pd.DataFrame()
+selected_description = None
+matchlink = None
+
 if dataafterleague:
+    # Fetch matches
     all_matches = []
     page = 1
     page_size = 400
@@ -119,29 +124,29 @@ if dataafterleague:
             break
 
     schedule_df = pd.DataFrame(all_matches)
-    if not schedule_df.empty and 'description' in schedule_df.columns:
-        schedule_df[['Home_Team', 'Away_Team']] = schedule_df['description'].str.split(' vs ', expand=True)
-        schedule_df['date'] = schedule_df['date'].str.replace('Z', '', regex=False)
-        schedule_df['date'] = pd.to_datetime(schedule_df['date'], errors='coerce')
-        schedule_df = schedule_df.dropna(subset=["description"])
-        today = pd.to_datetime(datetime.today().date())
-        schedule_df = schedule_df[schedule_df["date"] <= today]
-        schedule_df = schedule_df.sort_values(by="date")
 
-        options = ["-- Select a match --"] + schedule_df["description"].tolist()
-        selected_description = st.selectbox("Select a Match", options=options)
+# Only proceed if schedule_df is valid and has 'description'
+if not schedule_df.empty and 'description' in schedule_df.columns:
+    schedule_df[['Home_Team', 'Away_Team']] = schedule_df['description'].str.split(' vs ', expand=True)
+    schedule_df['date'] = schedule_df['date'].str.replace('Z', '', regex=False)
+    schedule_df['date'] = pd.to_datetime(schedule_df['date'], errors='coerce')
+    schedule_df = schedule_df.dropna(subset=["description"])
+    today = pd.to_datetime(datetime.today().date())
+    schedule_df = schedule_df[schedule_df["date"] <= today]
+    schedule_df = schedule_df.sort_values(by="date")
 
-        if selected_description != "-- Select a match --":
+    options = ["-- Select a match --"] + schedule_df["description"].tolist()
+    selected_description = st.selectbox("Select a Match", options=options)
+
+    if selected_description != "-- Select a match --":
+        try:
             matchlink = schedule_df[schedule_df["description"] == selected_description]["id"].values[0]
             st.info(f"Analyzing match: {selected_description}")
-        else:
-            st.warning("Please select a match to begin.")
-    else:
-        st.warning("No matches found for the selected competition.")
+        except IndexError:
+            st.error("Something went wrong selecting the match.")
 else:
     st.info("Please select a Season and Competition to continue.")
-
-
+    
 # Only assign matchlink if a valid match is selected
 if selected_description != "-- Select a match --":
     matchlink = schedule_df[schedule_df["description"] == selected_description]["id"].values[0]
