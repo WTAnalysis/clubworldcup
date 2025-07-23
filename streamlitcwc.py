@@ -38,7 +38,31 @@ import json
 import re
 import pandas as pd
 
-dataafterleague = '7n3ltxz65zjcd8z9eyr5i2wb8'
+league_dict = pd.read_excel("league_dict.xlsx")
+
+# Dropdown to select Season
+season_options = sorted(league_dict['Season'].dropna().unique())
+selected_season = st.selectbox("Select Season", ["-- Select Season --"] + season_options)
+
+# Conditional dropdown for Competition
+if selected_season != "-- Select Season --":
+    competitions = league_dict[league_dict['Season'] == selected_season]['Competition'].dropna().unique()
+    selected_competition = st.selectbox("Select Competition", ["-- Select Competition --"] + sorted(competitions))
+else:
+    selected_competition = "-- Select Competition --"
+
+# Get the seasonid based on selected values
+dataafterleague = None
+if selected_season != "-- Select Season --" and selected_competition != "-- Select Competition --":
+    filtered_row = league_dict[
+        (league_dict['Season'] == selected_season) & 
+        (league_dict['Competition'] == selected_competition)
+    ]
+    if not filtered_row.empty:
+        dataafterleague = filtered_row.iloc[0]['seasonid']
+        st.success(f"Selected competition ID: {dataafterleague}")
+    else:
+        st.warning("No matching competition found.")
 headers = {
     'Referer': 'https://www.scoresway.com/',
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36'
