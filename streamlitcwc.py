@@ -2078,7 +2078,9 @@ if matchlink:
         prf3comp = anderson.loc[(anderson['outcome']=='Successful') & (anderson['typeId']=='Pass')]
         prf3incomp = anderson.loc[(anderson['outcome']=='Unsuccessful') & (anderson['typeId']=='Pass') ]
         shotassist = anderson.loc[anderson['keyPass']==1]
+        shotassist = shotassist.loc[shotassist['typeId']=='Pass']
         goalassist = anderson.loc[anderson['assist']==1]
+        goalassist = goalassist.loc[goalassist['typeId']=='Pass']
 
         takeon = anderson.loc[(anderson['typeId']=='Take On')]
         takeont = takeon.loc[takeon['outcome'] == 'Successful']
