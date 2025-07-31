@@ -1758,9 +1758,9 @@ if matchlink:
 
         starting_lineups = starting_lineups.drop_duplicates(subset=['player_id', 'match_id'], keep='first')
 
-        league = 'INT-FIFACWC'
+        league = selected_competition
         league_colors = {
-            "ENG-FACup": {
+            "FA Cup": {
                 "TextColor": "white",
                 "BackgroundColor": "red",
                 "PitchColor": "#e5e1e0",
@@ -1778,16 +1778,16 @@ if matchlink:
                 "SonarCarry": "yellow",
                 "HullColor": "black"
             },
-            "ENG-LeagueCup": {
+            "Carabao Cup": {
                 "TextColor": "black",
-                "BackgroundColor": "#ffd5cc",
+                "BackgroundColor": "#fc957e",
                 "PitchColor": "#c4f0e1",
                 "PitchLineColor": "black",
                 "SonarPass": "#c4f0e1",
                 "SonarCarry": "#178fce",
-                "HullColor": "#ffd5cc"
+                "HullColor": "red"
             },
-            "ENG-Premier League": {
+            "Premier League": {
                 "TextColor": "white",
                 "BackgroundColor": "#381d54",
                 "PitchColor": "#f5f6fc",
@@ -1805,7 +1805,7 @@ if matchlink:
                 "SonarCarry": "#f3da15",
                 "HullColor": "#ebf3fc"
             },
-            "ENG-LeagueOne": {
+            "League One": {
                 "TextColor": "black",
                 "BackgroundColor": "#ede6cf",
                 "PitchColor": "#d4d6e3",
@@ -1814,7 +1814,7 @@ if matchlink:
                 "SonarCarry": "red",
                 "HullColor": "#ede6cf"
             },
-            "ENG-Championship": {
+            "Championship": {
                 "TextColor": "black",
                 "BackgroundColor": "#ede6cf",
                 "PitchColor": "#d4d6e3",
@@ -1823,7 +1823,7 @@ if matchlink:
                 "SonarCarry": "red",
                 "HullColor": "#ede6cf"
             },
-            "ITA-Serie A": {
+            "Serie A": {
                 "TextColor": "",
                 "BackgroundColor": "",
                 "PitchColor": "",
@@ -1832,7 +1832,7 @@ if matchlink:
                 "SonarCarry": "",
                 "HullColor": "#ebf3fc"
             },
-            "ENG-LeagueTwo": {
+            "League Two": {
                 "TextColor": "black",
                 "BackgroundColor": "#ede6cf",
                 "PitchColor": "#d4d6e3",
@@ -1859,7 +1859,7 @@ if matchlink:
                 "SonarCarry": "white",
                 "HullColor": "#d92419"
             },
-            "EUR-UCL": {
+            "Champions League": {
                 "TextColor": "white",
                 "BackgroundColor": "#00106f",
                 "PitchColor": "#62c6dd",
@@ -1868,7 +1868,25 @@ if matchlink:
                 "SonarCarry": "yellow",
                 "HullColor": "#00106f"
             },
-            "EUR-EUL": {
+            "Champions League Qualifiers": {
+                "TextColor": "white",
+                "BackgroundColor": "#00106f",
+                "PitchColor": "#62c6dd",
+                "PitchLineColor": "black",
+                "SonarPass": "#62c6dd",
+                "SonarCarry": "yellow",
+                "HullColor": "#00106f"
+            },
+            "Europa Conference League": {
+                "TextColor": "black",
+                "BackgroundColor": "#da9240",
+                "PitchColor": "#b9b9bb",
+                "PitchLineColor": "black",
+                "SonarPass": "#b9b9bb",
+                "SonarCarry": "blue",
+                "HullColor": "#da9240"
+            },
+            "Europa League": {
                 "TextColor": "black",
                 "BackgroundColor": "#da9240",
                 "PitchColor": "#b9b9bb",
@@ -2012,6 +2030,7 @@ if matchlink:
                 "SonarCarry": "yellow",
                 "HullColor": "#ebf3fc"
             }
+
         }
 
         # Define the league you are working with
