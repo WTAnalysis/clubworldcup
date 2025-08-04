@@ -1841,7 +1841,7 @@ if matchlink:
                 "SonarCarry": "red",
                 "HullColor": "#ede6cf"
             },
-            "SCO-Premiership": {
+            "Scottish Premiership": {
                 "TextColor": "white",
                 "BackgroundColor": "#212b5a",
                 "PitchColor": "#f1e5bd",
