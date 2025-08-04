@@ -2181,7 +2181,6 @@ if matchlink:
         from PIL import Image
 
         wtaimaged = Image.open("wtatransnew.png")
-        #teamimage = Image.open('C:\\Users\\will-\\OneDrive\\Documents\\WT Analysis\\Images\\premlogos\\forest2.png')
         from matplotlib.offsetbox import OffsetImage, AnnotationBbox
         import matplotlib.pyplot as plt
         import numpy as np
