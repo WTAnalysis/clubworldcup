@@ -1939,6 +1939,14 @@ if matchlink:
                 "SonarPass": "#E7F5AC",
                 "SonarCarry": "red",
                 "HullColor": "#091c3d"
+            },             
+            "Brasilerao": {
+                "TextColor": "white",
+                "BackgroundColor": "black",
+                "PitchColor": "#dcfc30",
+                "PitchLineColor": "white",
+                "SonarPass": "red",
+                "SonarCarry": "blue",
             },
             "BEL-ProLeague": {
                 "TextColor": "",
@@ -1967,7 +1975,7 @@ if matchlink:
                 "SonarCarry": "",
                 "HullColor": "#ebf3fc"
             },
-            "NFFC": {
+            "Friendly": {
                 "TextColor": "black",
                 "BackgroundColor": "#f5f2f3",
                 "PitchColor": "#ffe3e9",
