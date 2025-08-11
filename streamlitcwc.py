@@ -2409,7 +2409,9 @@ if matchlink:
         
             # Create plot
             fig, ax = plt.subplots(figsize=(10,6))
-            ax.set_facecolor(BackgroundColor)
+            fig.set_facecolor(BackgroundColor)
+
+            ax.set_facecolor(PitchColor)
             x = pivot_df['timeMin']
             y = pivot_df['rolling_avg_score_difference']
             spl = make_interp_spline(x, y, k=3)
