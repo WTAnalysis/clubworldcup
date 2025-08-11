@@ -1839,6 +1839,15 @@ if matchlink:
                 "SonarCarry": "",
                 "HullColor": "#ebf3fc"
             },
+            "Serie B": {
+                "TextColor": "",
+                "BackgroundColor": "",
+                "PitchColor": "",
+                "PitchLineColor": "",
+                "SonarPass": "",
+                "SonarCarry": "",
+                "HullColor": "#ebf3fc"
+            },
             "League Two": {
                 "TextColor": "black",
                 "BackgroundColor": "#ede6cf",
@@ -1857,7 +1866,7 @@ if matchlink:
                 "SonarCarry": "pink",
                 "HullColor": "#212b5a"
             },
-            "USA-MLS": {
+            "MLS": {
                 "TextColor": "white",
                 "BackgroundColor": "#d92419",
                 "PitchColor": "#68a7c8",
@@ -1902,7 +1911,7 @@ if matchlink:
                 "SonarCarry": "blue",
                 "HullColor": "#da9240"
             },
-            "ENG-WSL": {
+            "WSL": {
                 "TextColor": "",
                 "BackgroundColor": "",
                 "PitchColor": "",
@@ -1911,7 +1920,7 @@ if matchlink:
                 "SonarCarry": "",
                 "HullColor": "#ebf3fc"
             },
-            "ESP-La Liga": {
+            "La Liga": {
                 "TextColor": "#ff4b44",
                 "BackgroundColor": "white",
                 "PitchColor": "white",
@@ -1920,7 +1929,7 @@ if matchlink:
                 "SonarCarry": "#178fce",
                 "HullColor": "blue"
             },
-            "GER-Bundesliga": {
+            "Bundesliga": {
                 "TextColor": "white",
                 "BackgroundColor": "#d10214",
                 "PitchColor": "white",
@@ -1929,7 +1938,7 @@ if matchlink:
                 "SonarCarry": "yellow",
                 "HullColor": "#d10214"
             },
-            "GER-BundesligaTwo": {
+            "2. Bundesliga": {
                 "TextColor": "white",
                 "BackgroundColor": "#d10214",
                 "PitchColor": "white",
@@ -1938,7 +1947,7 @@ if matchlink:
                 "SonarCarry": "yellow",
                 "HullColor": "#d10214"
             },
-            "FRA-Ligue 1": {
+            "Ligue 1": {
                 "TextColor": "white",
                 "BackgroundColor": "#091c3d",
                 "PitchColor": "#E7F5AC",
@@ -1955,7 +1964,7 @@ if matchlink:
                 "SonarPass": "red",
                 "SonarCarry": "blue",
             },
-            "BEL-ProLeague": {
+            "Pro League": {
                 "TextColor": "",
                 "BackgroundColor": "",
                 "PitchColor": "",
@@ -1964,7 +1973,7 @@ if matchlink:
                 "SonarCarry": "",
                 "HullColor": "#ebf3fc"
             },
-            "POR-LigaPortugal": {
+            "Liga Portugal": {
                 "TextColor": "white",
                 "BackgroundColor": "#001e50",
                 "PitchColor": "#f5f6fc",
@@ -1983,6 +1992,42 @@ if matchlink:
                 "HullColor": "#ebf3fc"
             },
             "Friendly": {
+                "TextColor": "black",
+                "BackgroundColor": "#f5f2f3",
+                "PitchColor": "#ffe3e9",
+                "PitchLineColor": "black",
+                "SonarPass": "red",
+                "SonarCarry": "#87cbfc",
+                "HullColor": "#ebf3fc"
+            },
+            "Superligaen": {
+                "TextColor": "black",
+                "BackgroundColor": "#f5f2f3",
+                "PitchColor": "#ffe3e9",
+                "PitchLineColor": "black",
+                "SonarPass": "red",
+                "SonarCarry": "#87cbfc",
+                "HullColor": "#ebf3fc"
+            },
+            "Austrian Bundesliga": {
+                "TextColor": "black",
+                "BackgroundColor": "#f5f2f3",
+                "PitchColor": "#ffe3e9",
+                "PitchLineColor": "black",
+                "SonarPass": "red",
+                "SonarCarry": "#87cbfc",
+                "HullColor": "#ebf3fc"
+            },
+            "A-League": {
+                "TextColor": "black",
+                "BackgroundColor": "#f5f2f3",
+                "PitchColor": "#ffe3e9",
+                "PitchLineColor": "black",
+                "SonarPass": "red",
+                "SonarCarry": "#87cbfc",
+                "HullColor": "#ebf3fc"
+            },
+            "Swiss Super League": {
                 "TextColor": "black",
                 "BackgroundColor": "#f5f2f3",
                 "PitchColor": "#ffe3e9",
