@@ -23,8 +23,8 @@ import matplotlib.patches as patches
 from PIL import Image
 
 wtaimaged = Image.open("wtatransnew.png")
-st.set_page_config(page_title="WT Analysis - Club World Cup", layout="wide")
-st.title("WT Analysis - Club World Cup Visuals")
+st.set_page_config(page_title="WT Analysis - Match Visuals", layout="wide")
+st.title("WT Analysis - Match Visuals")
 schedule_df = pd.DataFrame()
 selected_description = None
 matchlink = None
@@ -41,7 +41,13 @@ import re
 import pandas as pd
 
 league_dict = pd.read_excel("league_dict.xlsx")
+color_options = sorted(mcolors.CSS4_COLORS.keys())
 
+# Add four new dropdowns for home/away colors
+homecolor1 = st.selectbox("Home Colour 1", color_options, index=color_options.index('red') if 'red' in color_options else 0)
+homecolor2 = st.selectbox("Home Colour 2", color_options, index=color_options.index('orange') if 'orange' in color_options else 0)
+awaycolor1 = st.selectbox("Away Colour 1", color_options, index=color_options.index('blue') if 'blue' in color_options else 0)
+awaycolor2 = st.selectbox("Away Colour 2", color_options, index=color_options.index('yellow') if 'yellow' in color_options else 0)
 # Ensure columns are strings
 league_dict['Season'] = league_dict['Season'].astype(str)
 league_dict['Competition'] = league_dict['Competition'].astype(str)
@@ -2054,7 +2060,8 @@ if matchlink:
 
         })
         
-        tab1, tab2 = st.tabs(["Player Visual", "Match Momentum"])
+        tab1, tab2, tab3 = st.tabs(["Player Visual", "Match Momentum", "Average Positions"])
+
         
         
 
@@ -2408,8 +2415,8 @@ if matchlink:
             x_smooth = np.linspace(x.min(), x.max(), 300)
             y_smooth = spl(x_smooth)
         
-            ax.fill_between(x_smooth, y_smooth, where=(y_smooth >= 0), interpolate=True, color='red', alpha=0.45, edgecolor='white')
-            ax.fill_between(x_smooth, y_smooth, where=(y_smooth < 0), interpolate=True, color='blue', alpha=0.45, edgecolor='white')
+            ax.fill_between(x_smooth, y_smooth, where=(y_smooth >= 0), interpolate=True, color=homecolor1, alpha=0.45, edgecolor=homecolor2)
+            ax.fill_between(x_smooth, y_smooth, where=(y_smooth < 0), interpolate=True, color=awaycolor1, alpha=0.45, edgecolor=awaycolor2)
         
             # Add football icons for goals
             for goal_min in goal_time:
@@ -2450,7 +2457,97 @@ if matchlink:
                
             st.pyplot(fig)        ## STEP 8 - sendings off
 
-
+        with tab3:
+            st.header("Average Positions")
+        
+            # --- Safety: fallbacks if color pickers weren’t added yet ---
+            try:
+                _hc1, _hc2, _ac1, _ac2 = homecolor1, homecolor2, awaycolor1, awaycolor2
+            except NameError:
+                _hc1, _hc2, _ac1, _ac2 = "red", "white", "blue", "white"
+        
+            # --- Build lineups (starters only) for each side ---
+            homelineup = starting_lineups[
+                (starting_lineups["team_name"] == teamname) &
+                (starting_lineups["is_starter"] == "yes")
+            ].copy()
+        
+            awaylineup = starting_lineups[
+                (starting_lineups["team_name"] != teamname) &
+                (starting_lineups["is_starter"] == "yes")
+            ].copy()
+        
+            # Guard: if df has no rows for those players (rare), avoid crash
+            if homelineup.empty or awaylineup.empty or df.empty:
+                st.info("Not enough event data to compute average positions for this match.")
+            else:
+                # --- Average locations for each player (home) ---
+                df_averages_home = (
+                    df[df["playerName"].isin(homelineup["player_name"])]
+                    .groupby("playerName", as_index=False)
+                    .agg({"x": "mean", "y": "mean"})
+                    .rename(columns={"playerName": "player_name"})
+                )
+                homeresult = pd.merge(homelineup, df_averages_home, on="player_name", how="left")
+        
+                # --- Average locations for each player (away) ---
+                df_averages_away = (
+                    df[df["playerName"].isin(awaylineup["player_name"])]
+                    .groupby("playerName", as_index=False)
+                    .agg({"x": "mean", "y": "mean"})
+                    .rename(columns={"playerName": "player_name"})
+                )
+                awayresult = pd.merge(awaylineup, df_averages_away, on="player_name", how="left")
+        
+                # Some matches can have players with no tracked events; drop missing xy so the plot won’t error
+                homeresult = homeresult.dropna(subset=["x", "y"])
+                awayresult = awayresult.dropna(subset=["x", "y"])
+        
+                # --- Draw pitch ---
+                from mplsoccer import Pitch
+                from matplotlib.font_manager import FontProperties
+                import matplotlib.pyplot as plt
+        
+                # Safe fallbacks in case theme vars aren’t set yet
+                _pitch_color = "white"
+                _line_color = "black"
+                _bg_color = "white"
+                _text_color = "black"
+                try:
+                    _pitch_color = PitchColor or _pitch_color
+                    _line_color = PitchLineColor or _line_color
+                    _bg_color = BackgroundColor or _bg_color
+                    _text_color = TextColor or _text_color
+                except NameError:
+                    pass
+        
+                pitch = Pitch(pitch_type="opta", pitch_color=_pitch_color, line_color=_line_color)
+                fig, ax = pitch.draw(figsize=(12, 8.25), constrained_layout=True, tight_layout=False)
+                fig.set_facecolor(_bg_color)
+        
+                # --- Plot home ---
+                for _, r in homeresult.iterrows():
+                    pitch.scatter(r["x"], r["y"], s=425, color=_hc1, edgecolors=_hc2, linewidth=1, alpha=1, ax=ax)
+                    pitch.annotate(str(r["squad_number"]),
+                                   xy=(r["x"] - 0.15, r["y"] - 0.15),
+                                   color=_hc2, va="center", ha="center", size=8, weight="bold", ax=ax)
+        
+                # --- Plot away (flip to other direction) ---
+                for _, r in awayresult.iterrows():
+                    pitch.scatter(100 - r["x"], 100 - r["y"], s=425, color=_ac1, edgecolors=_ac2, linewidth=1, alpha=1, ax=ax)
+                    pitch.annotate(str(r["squad_number"]),
+                                   xy=(100 - r["x"] - 0.15, 100 - r["y"] - 0.15),
+                                   color=_ac2, va="center", ha="center", size=8, weight="bold", ax=ax)
+        
+                # --- Title ---
+                title_font = FontProperties(family="Tahoma", size=15)
+                ax.set_title(f"{teamname} vs {opponentname} Average Positions",
+                             fontproperties=title_font, color=_text_color)
+        
+                # NOTE: Removed add_image calls (homeimage/awayimage/wtaimaged) to avoid undefined vars in Streamlit.
+                # If you want logos here, let me know and I’ll wire them with safe guards.
+        
+                st.pyplot(fig)
 
 
 
