@@ -2544,7 +2544,9 @@ if matchlink:
                 title_font = FontProperties(family="Tahoma", size=15)
                 ax.set_title(f"{teamname} vs {opponentname} Average Positions",
                              fontproperties=title_font, color=_text_color)
-        
+                ax_image = add_image(homeimage, fig, left=0.155, bottom=0.15, width=0.1, alpha=0.5, interpolation='hanning')
+                ax_image = add_image(awayimage, fig, left=0.765, bottom=0.15, width=0.1, alpha=0.5, interpolation='hanning')
+                ax_image = add_image(wtaimaged, fig, left=0.462, bottom=0.45, width=0.1, alpha=0.25, interpolation='hanning')
                 # NOTE: Removed add_image calls (homeimage/awayimage/wtaimaged) to avoid undefined vars in Streamlit.
                 # If you want logos here, let me know and I’ll wire them with safe guards.
         
