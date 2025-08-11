@@ -2409,7 +2409,7 @@ if matchlink:
         
             # Create plot
             fig, ax = plt.subplots(figsize=(10,6))
-            ax.set_facecolor('#f5f6fc')
+            ax.set_facecolor(BackgroundColor)
             x = pivot_df['timeMin']
             y = pivot_df['rolling_avg_score_difference']
             spl = make_interp_spline(x, y, k=3)
@@ -2435,7 +2435,7 @@ if matchlink:
                 ax.axvline(x=fulltime, color='green', linestyle='--', linewidth=1)
 
         
-            ax.set_title(f'{teamname} v {opponentname} Match Momentum')
+            ax.set_title(f'{teamname} v {opponentname} Match Momentum', color=TextColor)
             ax.set_xlabel('Minute')
             ax.set_ylabel('')
             ax.set_ylim(-1.5, 1.5)
