@@ -2767,7 +2767,7 @@ if matchlink:
                         fontproperties=title_font,
                         color=TextColor,
                         ha="center",
-                        y=0.825,        # bring closer to the pitch
+                        y=0.865,        # bring closer to the pitch
                         linespacing=1.1 # tighter spacing between lines
                     )
                 
