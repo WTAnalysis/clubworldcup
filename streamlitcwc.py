@@ -2703,7 +2703,7 @@ if matchlink:
                     title_text = f"{player_choice} Actions & Passes"
                     if receiver_choice != "— All —":
                         title_text += f" to {receiver_choice}"
-                    ax.set_title(title_text, fontsize=14, fontweight='bold', pad=10, color="white")
+                    ax.set_title(title_text, fontsize=14, fontweight='bold', pad=10, color=TextColor)
                 # render at natural size (no stretching)
                 buf = io.BytesIO()
                 fig.savefig(buf, format="png", dpi=110, bbox_inches="tight")
