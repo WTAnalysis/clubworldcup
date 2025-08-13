@@ -2609,7 +2609,7 @@ if matchlink:
                 line_color=PitchLineColor,
                 pitch_color=PitchColor
             )
-            fig, ax = pitch.draw(figsize=(6, 9))
+            fig, ax = pitch.draw(figsize=(3, 4.5))
             fig.set_facecolor(BackgroundColor)
         
             # --- player dropdown ---
