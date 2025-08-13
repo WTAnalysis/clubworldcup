@@ -2609,10 +2609,9 @@ if matchlink:
                 line_color=PitchLineColor,
                 pitch_color=PitchColor
             )
-            fig, ax = pitch.draw(figsize=(6, 9))
+            fig, ax = pitch.draw(figsize=(3.0, 4.6))   # smaller canvas
             fig.set_facecolor(BackgroundColor)
-            st.pyplot(fig, use_container_width=True)
-        
+
             # --- player dropdown ---
             players = (
                 df["playerName"].dropna().drop_duplicates().sort_values().tolist()
