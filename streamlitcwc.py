@@ -2604,7 +2604,7 @@ if matchlink:
             st.subheader("Player Actions")
         
             # left = pitch, right = controls
-            left_col, right_col = st.columns([2, 1], gap="large")  # adjust ratio if you like
+            left_col, right_col = st.columns([2, 1], gap="large")
         
             # ---------------- CONTROLS (RIGHT) ----------------
             with right_col:
@@ -2627,13 +2627,38 @@ if matchlink:
         
                         if "pass_recipient" in passes.columns:
                             rx_options = passes["pass_recipient"].dropna().drop_duplicates().sort_values().tolist()
-                            receiver_choice = st.selectbox("Pass Receiver", ["— All —"] + rx_options, index=0, key="pa_receiver")
+                            receiver_choice = st.selectbox(
+                                "Pass Receiver",
+                                ["— All —"] + rx_options,
+                                index=0,
+                                key="pa_receiver"
+                            )
                             if receiver_choice != "— All —":
                                 passes = passes[passes["pass_recipient"] == receiver_choice]
         
                         st.caption(f"{len(passes)} pass(es) selected.")
+        
+                        # -------- tick boxes to control which actions to plot --------
+                        st.markdown("**Show on pitch:**")
+                        col_ck1, col_ck2 = st.columns(2)
+                        with col_ck1:
+                            show_tackles       = st.checkbox("Tackles", True,  key="show_tackles")
+                            show_aerials       = st.checkbox("Aerials", True,  key="show_aerials")
+                            show_blocks        = st.checkbox("Blocks", False, key="show_blocks")           # Attempt saved & blocked
+                            show_ballrec       = st.checkbox("Ball Recoveries", True, key="show_ballrec")
+                            show_clearances    = st.checkbox("Clearances", True, key="show_clearances")
+                        with col_ck2:
+                            show_dribbles      = st.checkbox("Dribbles", True, key="show_dribbles")       # Take-ons
+                            show_dispossessed  = st.checkbox("Dispossessed", False, key="show_dispos")
+                            show_shot_off      = st.checkbox("Shots Off Target", True, key="show_off")
+                            show_shot_blocked  = st.checkbox("Shots Blocked", True, key="show_blocked")
+                            show_shot_on       = st.checkbox("Shots On Target", True, key="show_on")
+                            show_goals         = st.checkbox("Goals", True, key="show_goals")
                 else:
                     st.caption("Select a player to show their passes.")
+                    # defaults if no player chosen (won't be used)
+                    show_tackles = show_aerials = show_blocks = show_ballrec = show_clearances = False
+                    show_dribbles = show_dispossessed = show_shot_off = show_shot_blocked = show_shot_on = show_goals = False
         
             # ---------------- PLOT (LEFT) ----------------
             with left_col:
@@ -2643,7 +2668,7 @@ if matchlink:
                     line_color=PitchLineColor,
                     pitch_color=PitchColor
                 )
-                fig, ax = pitch.draw(figsize=(7, 10.5))   # compact canvas; tweak if needed
+                fig, ax = pitch.draw(figsize=(7, 10.5))
                 fig.set_facecolor(BackgroundColor)
         
                 # comet helpers
@@ -2669,7 +2694,7 @@ if matchlink:
                                     [ys + i*dy, ys + (i+1)*dy],
                                     color=color, alpha=float(alphas[i]), linewidth=linewidth, zorder=4)
         
-                # plot if we have data after filtering
+                # plot passes (comets)
                 if not passes.empty:
                     outcome_col = "outcome" if "outcome" in passes.columns else None
                     keypass_col = "keyPass" if "keyPass" in passes.columns else None
@@ -2699,26 +2724,27 @@ if matchlink:
                         plot_comet_line2(ax, playera["end_y"], playera["end_x"],
                                              playera["y"],     playera["x"],
                                              color="blue", num_segments=10, linewidth=2.0)
+        
+                # title
                 if player_choice != "— Select —":
                     title_text = f"{player_choice} Actions & Passes"
                     if receiver_choice != "— All —":
                         title_text += f" to {receiver_choice}"
                     ax.set_title(title_text, fontproperties=title_font, color=TextColor)
+        
+                # -------- ACTION MARKERS (non-passes), gated by checkboxes --------
                 if player_choice != "— Select —":
                     needed_xy = {"x", "y"}
                     if needed_xy.issubset(df.columns):
                         player_events = df[df["playerName"] == player_choice].copy()
-                
-                        # Convenience getters that won't crash if a column is missing
-                        def col(name):  # returns a Series if present else a False-y object
-                            return player_events[name] if name in player_events.columns else None
-                
-                        # Build boolean masks safely
-                        def is_type(t):        return col("typeId").eq(t) if col("typeId") is not None else None
-                        def is_outcome(o):     return col("outcome").eq(o) if col("outcome") is not None else None
-                        def flag_true(s):      return s.astype(str).str.lower().isin(["1", "true", "yes"]) if s is not None else None
-                
-                        # Masks per your spec
+        
+                        # convenient getters
+                        def col(name):      return player_events[name] if name in player_events.columns else None
+                        def is_type(t):     return col("typeId").eq(t) if col("typeId") is not None else None
+                        def is_outcome(o):  return col("outcome").eq(o) if col("outcome") is not None else None
+                        def flag_true(s):   return s.astype(str).str.lower().isin(["1", "true", "yes"]) if s is not None else None
+        
+                        # masks
                         m_tkl_s   = (is_type("Tackle")        & is_outcome("Successful"))     if is_type("Tackle") is not None else None
                         m_tkl_u   = (is_type("Tackle")        & is_outcome("Unsuccessful"))   if is_type("Tackle") is not None else None
                         m_aer_s   = (is_type("Aerial")        & is_outcome("Successful"))     if is_type("Aerial") is not None else None
@@ -2734,12 +2760,11 @@ if matchlink:
                         m_as_nblk = (is_type("Attempt saved") & ~flag_true(col("shotblocked"))) if is_type("Attempt saved") is not None and col("shotblocked") is not None else None
                         m_goal    =  is_type("Goal")                                           if is_type("Goal")   is not None else None
                         m_foul_u  = (is_type("Foul")         & is_outcome("Unsuccessful"))    if is_type("Foul")   is not None else None
-                
-                        # Helper to safely plot when a mask exists and matches at least one row
+        
+                        # safe scatter helper
                         def plot_mask(mask, facecolor, edgecolor, marker, size):
                             if mask is None:
                                 return
-                            # make sure mask is boolean without NaNs
                             try:
                                 mask = mask.fillna(False).astype(bool)
                             except Exception:
@@ -2756,47 +2781,56 @@ if matchlink:
                                 s=size,
                                 zorder=5
                             )
-                    
-                    # Draw them (colors/markers per your map)
-                        plot_mask(m_tkl_s,   facecolor="green",  edgecolor="green",  marker=">", size=40)   # Tackle successful
-                        plot_mask(m_tkl_u,   facecolor="red",    edgecolor="red",    marker=">", size=40)   # Tackle unsuccessful
-                        plot_mask(m_aer_s,   facecolor="green",  edgecolor="green",  marker="s", size=40)   # Aerial successful
-                        plot_mask(m_aer_u,   facecolor="red",    edgecolor="red",    marker="s", size=40)   # Aerial unsuccessful
-                        plot_mask(m_save,    facecolor="green",  edgecolor="green",  marker="p", size=40)   # Save
-                        plot_mask(m_ballrec, facecolor="green",  edgecolor="green",  marker="d", size=40)   # Ball recovery
-                        plot_mask(m_clear,   facecolor="green",  edgecolor="green",  marker="^", size=40)   # Clearance
-                        plot_mask(m_to_s,    facecolor="green",  edgecolor="green",  marker="P", size=40)   # Take on successful
-                        plot_mask(m_to_u,    facecolor="red",    edgecolor="red",    marker="P", size=40)   # Take on unsuccessful
-                        plot_mask(m_dispos,  facecolor="red",    edgecolor="red",    marker="x", size=40)   # Dispossessed
-                        plot_mask(m_as_blk,  facecolor="yellow", edgecolor="yellow", marker="o", size=40)   # Attempt saved & shotblocked=1 (blocked)
-                        plot_mask(m_miss,    facecolor="red",    edgecolor="red",    marker="o", size=40)   # Miss
-                        plot_mask(m_as_nblk, facecolor="green",  edgecolor="green",  marker="o", size=40)   # Attempt saved & shotblocked=0 (on target saved)
-                        plot_mask(m_goal,    facecolor="green",  edgecolor="green",  marker="*", size=100)  # Goal
-                        plot_mask(m_foul_u,  facecolor="red",    edgecolor="red",    marker=">", size=40)   # Foul (unsuccessful)
-                
+        
+                        # conditionally draw groups based on checkboxes
+                        if show_tackles:
+                            plot_mask(m_tkl_s, facecolor="green", edgecolor="green", marker=">", size=40)
+                            plot_mask(m_tkl_u, facecolor="red",   edgecolor="red",   marker=">", size=40)
+                        if show_aerials:
+                            plot_mask(m_aer_s, facecolor="green", edgecolor="green", marker="s", size=40)
+                            plot_mask(m_aer_u, facecolor="red",   edgecolor="red",   marker="s", size=40)
+                        if show_blocks:
+                            plot_mask(m_save,  facecolor="green", edgecolor="green", marker="p", size=40)
+                        if show_ballrec:
+                            plot_mask(m_ballrec, facecolor="green", edgecolor="green", marker="d", size=40)
+                        if show_clearances:
+                            plot_mask(m_clear, facecolor="green", edgecolor="green", marker="^", size=40)
+                        if show_dribbles:
+                            plot_mask(m_to_s,  facecolor="green", edgecolor="green", marker="P", size=40)
+                            plot_mask(m_to_u,  facecolor="red",   edgecolor="red",   marker="P", size=40)
+                        if show_dispossessed:
+                            plot_mask(m_dispos, facecolor="red",  edgecolor="red",   marker="x", size=40)
+                        if show_shot_off:
+                            plot_mask(m_miss,   facecolor="red",  edgecolor="red",   marker="o", size=40)
+                        if show_shot_blocked:
+                            plot_mask(m_as_blk, facecolor="yellow", edgecolor="yellow", marker="o", size=40)
+                        if show_shot_on:
+                            plot_mask(m_as_nblk, facecolor="green", edgecolor="green", marker="o", size=40)
+                        if show_goals:
+                            plot_mask(m_goal,   facecolor="green", edgecolor="green", marker="*", size=100)
+        
+                # legend to the right of pitch (unchanged)
                 legend_labels = ['Completed Pass', 'Incompleted Pass', 'Shot Assist', 'Assist', 'Ball Carry']
                 legend_colors = ['green', 'red', 'orange', 'blue', 'purple']
-                
                 legend_lines = [Line2D([0], [0], color=c, linewidth=3) for c in legend_colors]
-                
                 leg = ax.legend(
                     legend_lines, legend_labels,
-                    loc='center left',            # anchor to the right edge of the pitch
-                    bbox_to_anchor=(1.02, 0.5),   # (x, y) relative to axes; x>1.0 pushes it outside to the right
+                    loc='center left',
+                    bbox_to_anchor=(1.02, 0.5),
                     frameon=False,
                     ncol=1,
                 )
-                
-                # match your theme text color if you have it
                 try:
                     for txt in leg.get_texts():
                         txt.set_color(TextColor)
                 except Exception:
                     pass
+        
+                # render at natural size
                 buf = io.BytesIO()
                 fig.savefig(buf, format="png", dpi=110, bbox_inches="tight")
                 buf.seek(0)
-                st.image(buf)   # stays side-by-side with controls
+                st.image(buf)
                 plt.close(fig)
 
 
