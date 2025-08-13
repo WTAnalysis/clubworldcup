@@ -2758,21 +2758,21 @@ if matchlink:
                         )
                     
                     # Draw them (colors/markers per your map)
-                    plot_mask(m_tkl_s,   facecolor="green",  edgecolor="green",  marker=">", size=40)   # Tackle successful
-                    plot_mask(m_tkl_u,   facecolor="red",    edgecolor="red",    marker=">", size=40)   # Tackle unsuccessful
-                    plot_mask(m_aer_s,   facecolor="green",  edgecolor="green",  marker="s", size=40)   # Aerial successful
-                    plot_mask(m_aer_u,   facecolor="red",    edgecolor="red",    marker="s", size=40)   # Aerial unsuccessful
-                    plot_mask(m_save,    facecolor="green",  edgecolor="green",  marker="p", size=40)   # Save
-                    plot_mask(m_ballrec, facecolor="green",  edgecolor="green",  marker="d", size=40)   # Ball recovery
-                    plot_mask(m_clear,   facecolor="green",  edgecolor="green",  marker="^", size=40)   # Clearance
-                    plot_mask(m_to_s,    facecolor="green",  edgecolor="green",  marker="P", size=40)   # Take on successful
-                    plot_mask(m_to_u,    facecolor="red",    edgecolor="red",    marker="P", size=40)   # Take on unsuccessful
-                    plot_mask(m_dispos,  facecolor="red",    edgecolor="red",    marker="x", size=40)   # Dispossessed
-                    plot_mask(m_as_blk,  facecolor="yellow", edgecolor="yellow", marker="o", size=40)   # Attempt saved & shotblocked=1 (blocked)
-                    plot_mask(m_miss,    facecolor="red",    edgecolor="red",    marker="o", size=40)   # Miss
-                    plot_mask(m_as_nblk, facecolor="green",  edgecolor="green",  marker="o", size=40)   # Attempt saved & shotblocked=0 (on target saved)
-                    plot_mask(m_goal,    facecolor="green",  edgecolor="green",  marker="*", size=100)  # Goal
-                    plot_mask(m_foul_u,  facecolor="red",    edgecolor="red",    marker=">", size=40)   # Foul (unsuccessful)
+                        plot_mask(m_tkl_s,   facecolor="green",  edgecolor="green",  marker=">", size=40)   # Tackle successful
+                        plot_mask(m_tkl_u,   facecolor="red",    edgecolor="red",    marker=">", size=40)   # Tackle unsuccessful
+                        plot_mask(m_aer_s,   facecolor="green",  edgecolor="green",  marker="s", size=40)   # Aerial successful
+                        plot_mask(m_aer_u,   facecolor="red",    edgecolor="red",    marker="s", size=40)   # Aerial unsuccessful
+                        plot_mask(m_save,    facecolor="green",  edgecolor="green",  marker="p", size=40)   # Save
+                        plot_mask(m_ballrec, facecolor="green",  edgecolor="green",  marker="d", size=40)   # Ball recovery
+                        plot_mask(m_clear,   facecolor="green",  edgecolor="green",  marker="^", size=40)   # Clearance
+                        plot_mask(m_to_s,    facecolor="green",  edgecolor="green",  marker="P", size=40)   # Take on successful
+                        plot_mask(m_to_u,    facecolor="red",    edgecolor="red",    marker="P", size=40)   # Take on unsuccessful
+                        plot_mask(m_dispos,  facecolor="red",    edgecolor="red",    marker="x", size=40)   # Dispossessed
+                        plot_mask(m_as_blk,  facecolor="yellow", edgecolor="yellow", marker="o", size=40)   # Attempt saved & shotblocked=1 (blocked)
+                        plot_mask(m_miss,    facecolor="red",    edgecolor="red",    marker="o", size=40)   # Miss
+                        plot_mask(m_as_nblk, facecolor="green",  edgecolor="green",  marker="o", size=40)   # Attempt saved & shotblocked=0 (on target saved)
+                        plot_mask(m_goal,    facecolor="green",  edgecolor="green",  marker="*", size=100)  # Goal
+                        plot_mask(m_foul_u,  facecolor="red",    edgecolor="red",    marker=">", size=40)   # Foul (unsuccessful)
                 
                 legend_labels = ['Completed Pass', 'Incompleted Pass', 'Shot Assist', 'Assist', 'Ball Carry']
                 legend_colors = ['green', 'red', 'orange', 'blue', 'purple']
