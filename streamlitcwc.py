@@ -2813,8 +2813,8 @@ if matchlink:
                             wtaimaged,
                             fig,
                             left=1.02,        # push to right edge (same anchor space as legend)
-                            bottom=0.88,      # higher up so it sits above legend
-                            width=0.08,       # adjust to fit
+                            bottom=0.6,      # higher up so it sits above legend
+                            width=0.25,       # adjust to fit
                             alpha=1,
                             interpolation='hanning'
                         )
