@@ -2642,18 +2642,18 @@ if matchlink:
                         st.markdown("**Show on pitch:**")
                         col_ck1, col_ck2 = st.columns(2)
                         with col_ck1:
-                            show_tackles       = st.checkbox("Tackles", True,  key="show_tackles")
-                            show_aerials       = st.checkbox("Aerials", True,  key="show_aerials")
-                            show_blocks        = st.checkbox("Blocks", False, key="show_blocks")           # Attempt saved & blocked
-                            show_ballrec       = st.checkbox("Ball Recoveries", True, key="show_ballrec")
-                            show_clearances    = st.checkbox("Clearances", True, key="show_clearances")
+                            show_tackles       = st.checkbox("Tackles", False, key="show_tackles")
+                            show_aerials       = st.checkbox("Aerials", False, key="show_aerials")
+                            show_blocks        = st.checkbox("Blocks", False, key="show_blocks")
+                            show_ballrec       = st.checkbox("Ball Recoveries", False, key="show_ballrec")
+                            show_clearances    = st.checkbox("Clearances", False, key="show_clearances")
                         with col_ck2:
-                            show_dribbles      = st.checkbox("Dribbles", True, key="show_dribbles")       # Take-ons
+                            show_dribbles      = st.checkbox("Dribbles", False, key="show_dribbles")
                             show_dispossessed  = st.checkbox("Dispossessed", False, key="show_dispos")
-                            show_shot_off      = st.checkbox("Shots Off Target", True, key="show_off")
-                            show_shot_blocked  = st.checkbox("Shots Blocked", True, key="show_blocked")
-                            show_shot_on       = st.checkbox("Shots On Target", True, key="show_on")
-                            show_goals         = st.checkbox("Goals", True, key="show_goals")
+                            show_shot_off      = st.checkbox("Shots Off Target", False, key="show_off")
+                            show_shot_blocked  = st.checkbox("Shots Blocked", False, key="show_blocked")
+                            show_shot_on       = st.checkbox("Shots On Target", False, key="show_on")
+                            show_goals         = st.checkbox("Goals", False, key="show_goals")
                 else:
                     st.caption("Select a player to show their passes.")
                     # defaults if no player chosen (won't be used)
