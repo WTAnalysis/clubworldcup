@@ -2700,7 +2700,11 @@ if matchlink:
             else:
                 st.caption("Select a player to show their passes.")
         
-            st.pyplot(fig)
+            buf = io.BytesIO()
+            fig.savefig(buf, format="png", dpi=100, bbox_inches="tight")  # tweak dpi for size
+            buf.seek(0)
+            st.image(buf)  # displays exactly as saved
+            plt.close(fig)
 
 
 
