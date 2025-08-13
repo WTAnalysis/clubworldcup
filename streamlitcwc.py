@@ -2609,7 +2609,7 @@ if matchlink:
                 line_color=PitchLineColor,
                 pitch_color=PitchColor
             )
-            fig, ax = pitch.draw(figsize=(6, 9), dpi=300)
+            fig, ax = pitch.draw(figsize=(6, 9))
             fig.set_facecolor(BackgroundColor)
             st.pyplot(fig, use_container_width=True)
         
