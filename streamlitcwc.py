@@ -2879,7 +2879,7 @@ if matchlink:
                                 add_image(
                                     teamimage,
                                     fig,
-                                    left=0.735, bottom=0.15, width=0.225,
+                                    left=0.735, bottom=0.135, width=0.225,
                                     alpha=1, interpolation='hanning'
                                 )
                             except Exception as e:
