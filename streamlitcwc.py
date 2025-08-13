@@ -2737,25 +2737,25 @@ if matchlink:
                 
                         # Helper to safely plot when a mask exists and matches at least one row
                         def plot_mask(mask, facecolor, edgecolor, marker, size):
-                        if mask is None:
-                            return
-                        # make sure mask is boolean without NaNs
-                        try:
-                            mask = mask.fillna(False).astype(bool)
-                        except Exception:
-                            return
-                        sub = player_events[mask]
-                        if sub.empty:
-                            return
-                        pitch.scatter(
-                            sub["x"], sub["y"],
-                            ax=ax,
-                            facecolor=facecolor,
-                            edgecolor=edgecolor,
-                            marker=marker,
-                            s=size,
-                            zorder=5
-                        )
+                            if mask is None:
+                                return
+                            # make sure mask is boolean without NaNs
+                            try:
+                                mask = mask.fillna(False).astype(bool)
+                            except Exception:
+                                return
+                            sub = player_events[mask]
+                            if sub.empty:
+                                return
+                            pitch.scatter(
+                                sub["x"], sub["y"],
+                                ax=ax,
+                                facecolor=facecolor,
+                                edgecolor=edgecolor,
+                                marker=marker,
+                                s=size,
+                                zorder=5
+                            )
                     
                     # Draw them (colors/markers per your map)
                         plot_mask(m_tkl_s,   facecolor="green",  edgecolor="green",  marker=">", size=40)   # Tackle successful
