@@ -2705,61 +2705,61 @@ if matchlink:
                         title_text += f" to {receiver_choice}"
                     ax.set_title(title_text, fontproperties=title_font, color=TextColor)
                 if player_choice != "— Select —":
-                needed_xy = {"x", "y"}
-                if needed_xy.issubset(df.columns):
-                    player_events = df[df["playerName"] == player_choice].copy()
-            
-                    # Convenience getters that won't crash if a column is missing
-                    def col(name):  # returns a Series if present else a False-y object
-                        return player_events[name] if name in player_events.columns else None
-            
-                    # Build boolean masks safely
-                    def is_type(t):        return col("typeId").eq(t) if col("typeId") is not None else None
-                    def is_outcome(o):     return col("outcome").eq(o) if col("outcome") is not None else None
-                    def flag_true(s):      return s.astype(str).str.lower().isin(["1", "true", "yes"]) if s is not None else None
-            
-                    # Masks per your spec
-                    m_tkl_s   = (is_type("Tackle")        & is_outcome("Successful"))     if is_type("Tackle") is not None else None
-                    m_tkl_u   = (is_type("Tackle")        & is_outcome("Unsuccessful"))   if is_type("Tackle") is not None else None
-                    m_aer_s   = (is_type("Aerial")        & is_outcome("Successful"))     if is_type("Aerial") is not None else None
-                    m_aer_u   = (is_type("Aerial")        & is_outcome("Unsuccessful"))   if is_type("Aerial") is not None else None
-                    m_save    =  is_type("Save")                                           if is_type("Save")   is not None else None
-                    m_ballrec =  is_type("Ball recovery")                                  if is_type("Ball recovery") is not None else None
-                    m_clear   =  is_type("Clearance")                                      if is_type("Clearance") is not None else None
-                    m_to_s    = (is_type("Take on")       & is_outcome("Successful"))     if is_type("Take on") is not None else None
-                    m_to_u    = (is_type("Take on")       & is_outcome("Unsuccessful"))   if is_type("Take on") is not None else None
-                    m_dispos  =  is_type("Dispossessed")                                   if is_type("Dispossessed") is not None else None
-                    m_as_blk  = (is_type("Attempt saved") & flag_true(col("shotblocked"))) if is_type("Attempt saved") is not None else None
-                    m_miss    =  is_type("Miss")                                           if is_type("Miss")   is not None else None
-                    m_as_nblk = (is_type("Attempt saved") & ~flag_true(col("shotblocked"))) if is_type("Attempt saved") is not None and col("shotblocked") is not None else None
-                    m_goal    =  is_type("Goal")                                           if is_type("Goal")   is not None else None
-                    m_foul_u  = (is_type("Foul")         & is_outcome("Unsuccessful"))    if is_type("Foul")   is not None else None
-            
-                    # Helper to safely plot when a mask exists and matches at least one row
-                    def plot_mask(mask, face, edge, marker, size):
-                        if mask is None:
-                            return
-                        sub = player_events[mask]
-                        if sub.empty: 
-                            return
-                        pitch.scatter(sub["x"], sub["y"], ax=ax, facecolor=face, edgecolor=edge, marker=marker, s=size, zorder=5)
-            
-                    # Draw them (colors/markers per your earlier snippet)
-                    plot_mask(m_tkl_s,   face="green", edge="green", marker=">", s=40)   # Tackle successful
-                    plot_mask(m_tkl_u,   face="red",   edge="red",   marker=">", s=40)   # Tackle unsuccessful
-                    plot_mask(m_aer_s,   face="green", edge="green", marker="s", s=40)   # Aerial successful
-                    plot_mask(m_aer_u,   face="red",   edge="red",   marker="s", s=40)   # Aerial unsuccessful
-                    plot_mask(m_save,    face="green", edge="green", marker="p", s=40)   # Save
-                    plot_mask(m_ballrec, face="green", edge="green", marker="d", s=40)   # Ball recovery
-                    plot_mask(m_clear,   face="green", edge="green", marker="^", s=40)   # Clearance
-                    plot_mask(m_to_s,    face="green", edge="green", marker="P", s=40)   # Take on successful
-                    plot_mask(m_to_u,    face="red",   edge="red",   marker="P", s=40)   # Take on unsuccessful
-                    plot_mask(m_dispos,  face="red",   edge="red",   marker="x", s=40)   # Dispossessed
-                    plot_mask(m_as_blk,  face="yellow",edge="yellow",marker="o", s=40)   # Attempt saved & shotblocked=1 (blocked)
-                    plot_mask(m_miss,    face="red",   edge="red",   marker="o", s=40)   # Miss
-                    plot_mask(m_as_nblk, face="green", edge="green", marker="o", s=40)   # Attempt saved & shotblocked=0 (on target saved)
-                    plot_mask(m_goal,    face="green", edge="green", marker="*", s=100)  # Goal
-                    plot_mask(m_foul_u,  face="red",   edge="red",   marker=">", s=40)   # Foul (unsuccessful)
+                    needed_xy = {"x", "y"}
+                    if needed_xy.issubset(df.columns):
+                        player_events = df[df["playerName"] == player_choice].copy()
+                
+                        # Convenience getters that won't crash if a column is missing
+                        def col(name):  # returns a Series if present else a False-y object
+                            return player_events[name] if name in player_events.columns else None
+                
+                        # Build boolean masks safely
+                        def is_type(t):        return col("typeId").eq(t) if col("typeId") is not None else None
+                        def is_outcome(o):     return col("outcome").eq(o) if col("outcome") is not None else None
+                        def flag_true(s):      return s.astype(str).str.lower().isin(["1", "true", "yes"]) if s is not None else None
+                
+                        # Masks per your spec
+                        m_tkl_s   = (is_type("Tackle")        & is_outcome("Successful"))     if is_type("Tackle") is not None else None
+                        m_tkl_u   = (is_type("Tackle")        & is_outcome("Unsuccessful"))   if is_type("Tackle") is not None else None
+                        m_aer_s   = (is_type("Aerial")        & is_outcome("Successful"))     if is_type("Aerial") is not None else None
+                        m_aer_u   = (is_type("Aerial")        & is_outcome("Unsuccessful"))   if is_type("Aerial") is not None else None
+                        m_save    =  is_type("Save")                                           if is_type("Save")   is not None else None
+                        m_ballrec =  is_type("Ball recovery")                                  if is_type("Ball recovery") is not None else None
+                        m_clear   =  is_type("Clearance")                                      if is_type("Clearance") is not None else None
+                        m_to_s    = (is_type("Take on")       & is_outcome("Successful"))     if is_type("Take on") is not None else None
+                        m_to_u    = (is_type("Take on")       & is_outcome("Unsuccessful"))   if is_type("Take on") is not None else None
+                        m_dispos  =  is_type("Dispossessed")                                   if is_type("Dispossessed") is not None else None
+                        m_as_blk  = (is_type("Attempt saved") & flag_true(col("shotblocked"))) if is_type("Attempt saved") is not None else None
+                        m_miss    =  is_type("Miss")                                           if is_type("Miss")   is not None else None
+                        m_as_nblk = (is_type("Attempt saved") & ~flag_true(col("shotblocked"))) if is_type("Attempt saved") is not None and col("shotblocked") is not None else None
+                        m_goal    =  is_type("Goal")                                           if is_type("Goal")   is not None else None
+                        m_foul_u  = (is_type("Foul")         & is_outcome("Unsuccessful"))    if is_type("Foul")   is not None else None
+                
+                        # Helper to safely plot when a mask exists and matches at least one row
+                        def plot_mask(mask, face, edge, marker, size):
+                            if mask is None:
+                                return
+                            sub = player_events[mask]
+                            if sub.empty: 
+                                return
+                            pitch.scatter(sub["x"], sub["y"], ax=ax, facecolor=face, edgecolor=edge, marker=marker, s=size, zorder=5)
+                
+                        # Draw them (colors/markers per your earlier snippet)
+                        plot_mask(m_tkl_s,   face="green", edge="green", marker=">", s=40)   # Tackle successful
+                        plot_mask(m_tkl_u,   face="red",   edge="red",   marker=">", s=40)   # Tackle unsuccessful
+                        plot_mask(m_aer_s,   face="green", edge="green", marker="s", s=40)   # Aerial successful
+                        plot_mask(m_aer_u,   face="red",   edge="red",   marker="s", s=40)   # Aerial unsuccessful
+                        plot_mask(m_save,    face="green", edge="green", marker="p", s=40)   # Save
+                        plot_mask(m_ballrec, face="green", edge="green", marker="d", s=40)   # Ball recovery
+                        plot_mask(m_clear,   face="green", edge="green", marker="^", s=40)   # Clearance
+                        plot_mask(m_to_s,    face="green", edge="green", marker="P", s=40)   # Take on successful
+                        plot_mask(m_to_u,    face="red",   edge="red",   marker="P", s=40)   # Take on unsuccessful
+                        plot_mask(m_dispos,  face="red",   edge="red",   marker="x", s=40)   # Dispossessed
+                        plot_mask(m_as_blk,  face="yellow",edge="yellow",marker="o", s=40)   # Attempt saved & shotblocked=1 (blocked)
+                        plot_mask(m_miss,    face="red",   edge="red",   marker="o", s=40)   # Miss
+                        plot_mask(m_as_nblk, face="green", edge="green", marker="o", s=40)   # Attempt saved & shotblocked=0 (on target saved)
+                        plot_mask(m_goal,    face="green", edge="green", marker="*", s=100)  # Goal
+                        plot_mask(m_foul_u,  face="red",   edge="red",   marker=">", s=40)   # Foul (unsuccessful)
                 
                 legend_labels = ['Completed Pass', 'Incompleted Pass', 'Shot Assist', 'Assist', 'Ball Carry']
                 legend_colors = ['green', 'red', 'orange', 'blue', 'purple']
