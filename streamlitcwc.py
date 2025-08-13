@@ -2809,22 +2809,102 @@ if matchlink:
                         if show_goals:
                             plot_mask(m_goal,   facecolor="green", edgecolor="green", marker="*", size=100)
         
-                # legend to the right of pitch (unchanged)
-                legend_labels = ['Completed Pass', 'Incompleted Pass', 'Shot Assist', 'Assist', 'Ball Carry']
-                legend_colors = ['green', 'red', 'orange', 'blue', 'purple']
-                legend_lines = [Line2D([0], [0], color=c, linewidth=3) for c in legend_colors]
-                leg = ax.legend(
-                    legend_lines, legend_labels,
-                    loc='center left',
-                    bbox_to_anchor=(1.02, 0.5),
-                    frameon=False,
-                    ncol=1,
-                )
-                try:
-                    for txt in leg.get_texts():
-                        txt.set_color(TextColor)
-                except Exception:
-                    pass
+
+                        legend_handles = []
+                        legend_labels  = []
+                        
+                        # -- Passes (always shown) --
+                        legend_handles += [
+                            Line2D([0], [0], color='green',  linewidth=3),
+                            Line2D([0], [0], color='red',    linewidth=3),
+                            Line2D([0], [0], color='orange', linewidth=3),
+                            Line2D([0], [0], color='blue',   linewidth=3),
+                            Line2D([0], [0], color='purple', linewidth=3),
+                        ]
+                        legend_labels += [
+                            'Completed Pass',
+                            'Incompleted Pass',
+                            'Shot Assist',
+                            'Assist',
+                            'Ball Carry',
+                        ]
+                        
+                        # Helper to add a marker (no line)
+                        def mkr(marker, face, edge=None, size=8, label=''):
+                            if edge is None:
+                                edge = face
+                            return Line2D(
+                                [], [], linestyle='None',
+                                marker=marker, markersize=size,
+                                markerfacecolor=face, markeredgecolor=edge,
+                                label=label
+                            )
+                        
+                        # -- Actions (only include if the checkbox is ticked) --
+                        if player_choice != "— Select —":
+                            # these booleans come from your right-column checkboxes
+                            if show_tackles:
+                                legend_handles += [mkr('>', 'green', label='Tackles (S)'),
+                                                   mkr('>', 'red',   label='Tackles (U)')]
+                                legend_labels  += ['Tackles (S)', 'Tackles (U)']
+                        
+                            if show_aerials:
+                                legend_handles += [mkr('s', 'green', label='Aerials (S)'),
+                                                   mkr('s', 'red',   label='Aerials (U)')]
+                                legend_labels  += ['Aerials (S)', 'Aerials (U)']
+                        
+                            if show_blocks:
+                                legend_handles.append(mkr('p', 'green', label='Blocks (Save)'))
+                                legend_labels.append('Blocks (Save)')
+                        
+                            if show_ballrec:
+                                legend_handles.append(mkr('d', 'green', label='Ball Recoveries'))
+                                legend_labels.append('Ball Recoveries')
+                        
+                            if show_clearances:
+                                legend_handles.append(mkr('^', 'green', label='Clearances'))
+                                legend_labels.append('Clearances')
+                        
+                            if show_dribbles:
+                                legend_handles += [mkr('P', 'green', label='Dribbles (S)'),
+                                                   mkr('P', 'red',   label='Dribbles (U)')]
+                                legend_labels  += ['Dribbles (S)', 'Dribbles (U)']
+                        
+                            if show_dispossessed:
+                                legend_handles.append(mkr('x', 'red', label='Dispossessed'))
+                                legend_labels.append('Dispossessed')
+                        
+                            if show_shot_off:
+                                legend_handles.append(mkr('o', 'red', label='Shots Off Target'))
+                                legend_labels.append('Shots Off Target')
+                        
+                            if show_shot_blocked:
+                                legend_handles.append(mkr('o', 'yellow', edge='yellow', label='Shots Blocked'))
+                                legend_labels.append('Shots Blocked')
+                        
+                            if show_shot_on:
+                                legend_handles.append(mkr('o', 'green', label='Shots On Target'))
+                                legend_labels.append('Shots On Target')
+                        
+                            if show_goals:
+                                legend_handles.append(mkr('*', 'green', edge='green', size=12, label='Goals'))
+                                legend_labels.append('Goals')
+                        
+                        # Draw legend to the RIGHT of the pitch and include only what we built
+                        leg = ax.legend(
+                            legend_handles, legend_labels,
+                            loc='center left',
+                            bbox_to_anchor=(1.02, 0.5),
+                            frameon=False,
+                            ncol=1,
+                        )
+                        
+                        # Match theme text color (if defined)
+                        try:
+                            for txt in leg.get_texts():
+                                txt.set_color(TextColor)
+                        except Exception:
+                            pass
         
                 # render at natural size
                 buf = io.BytesIO()
