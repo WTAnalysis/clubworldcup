@@ -2730,40 +2730,47 @@ if matchlink:
                     title_text = f"{player_choice} Actions & Passes"
                     if receiver_choice != "— All —":
                         title_text += f" to {receiver_choice}"
-                    opponent_name = None
-                    if (
-                        player_choice != "— Select —"
-                        and "team_name" in starting_lineups.columns
-                        and "name" in teamdata.columns
-                    ):
-                        # team the selected player plays for
-                        try:
-                            teamname = (
-                                starting_lineups.loc[starting_lineups["playerName"] == player_choice, "team_name"]
-                                .iloc[0]
-                            )
-                            # opponent = the other team in teamdata
-                            opponent_candidates = teamdata.loc[teamdata["name"] != teamname, "name"]
-                            if not opponent_candidates.empty:
-                                opponent_name = opponent_candidates.iloc[0]
-                        except Exception:
-                            opponent_name = None
-                    
-                    if player_choice != "— Select —":
-                        if opponent_name:
-                            title_text = f"{player_choice} vs {opponent_name} — Actions & Passes"
-                            if receiver_choice != "— All —":
-                                title_text += f" to {receiver_choice}"
-                        else:
-                            title_text = f"{player_choice} Actions & Passes"
-                            if receiver_choice != "— All —":
-                                title_text += f" to {receiver_choice}"
-                    
-                        # Center across the entire figure (not just the axes)
-                        fig.suptitle(title_text, fontproperties=title_font, color=TextColor,
-                                     ha="center", y=0.99)   # nudge y if it feels tight
-                        # leave axes title blank in case it was set previously
-                        ax.set_title("")
+                opponent_name = None
+                if (
+                    player_choice != "— Select —"
+                    and "team_name" in starting_lineups.columns
+                    and "name" in teamdata.columns
+                ):
+                    try:
+                        teamname = (
+                            starting_lineups.loc[starting_lineups["playerName"] == player_choice, "team_name"]
+                            .iloc[0]
+                        )
+                        opponent_candidates = teamdata.loc[teamdata["name"] != teamname, "name"]
+                        if not opponent_candidates.empty:
+                            opponent_name = opponent_candidates.iloc[0]
+                    except Exception:
+                        opponent_name = None
+                
+                if player_choice != "— Select —":
+                    # First line
+                    title_main = f"{player_choice} – Actions & Passes"
+                    if receiver_choice != "— All —":
+                        title_main += f" to {receiver_choice}"
+                
+                    # Second line (if opponent found)
+                    if opponent_name:
+                        title_sub = f"vs {opponent_name}"
+                    else:
+                        title_sub = ""
+                
+                    # Combine into one multi-line title
+                    full_title = title_main if not title_sub else f"{title_main}\n{title_sub}"
+                
+                    fig.suptitle(
+                        full_title,
+                        fontproperties=title_font,
+                        color=TextColor,
+                        ha="center",
+                        y=0.99,  # adjust spacing
+                    )
+                
+                    ax.set_title("")  # clear axes title
         
                 # -------- ACTION MARKERS (non-passes), gated by checkboxes --------
                 if player_choice != "— Select —":
@@ -2846,7 +2853,7 @@ if matchlink:
                             wtaimaged,
                             fig,
                             left=0.735,        # push to right edge (same anchor space as legend)
-                            bottom=0.675,      # higher up so it sits above legend
+                            bottom=0.725,      # higher up so it sits above legend
                             width=0.225,       # adjust to fit
                             alpha=1,
                             interpolation='hanning'
@@ -2871,7 +2878,7 @@ if matchlink:
                                 add_image(
                                     teamimage,
                                     fig,
-                                    left=0.735, bottom=0.2, width=0.225,
+                                    left=0.735, bottom=0.15, width=0.225,
                                     alpha=1, interpolation='hanning'
                                 )
                             except Exception as e:
