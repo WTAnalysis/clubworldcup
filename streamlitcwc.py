@@ -2599,6 +2599,108 @@ if matchlink:
         
                 st.pyplot(fig)
 
+        with tab4:
+            st.subheader("Player Actions")
+        
+            # --- always start with a blank pitch ---
+            pitch = VerticalPitch(
+                pitch_type='opta',
+                goal_type='box',
+                line_color=PitchLineColor,
+                pitch_color=PitchColor
+            )
+            fig, ax = pitch.draw(figsize=(6, 9))
+            fig.set_facecolor(BackgroundColor)
+        
+            # --- player dropdown ---
+            players = (
+                df["playerName"].dropna().drop_duplicates().sort_values().tolist()
+                if "playerName" in df.columns else []
+            )
+            player_choice = st.selectbox("Player", ["— Select —"] + players, index=0, key="pa_player")
+        
+            # Helper: comet line functions
+            def plot_comet_line(ax, x_start, y_start, x_end, y_end, color="green", num_segments=20, linewidth=1.5):
+                for xs, ys, xe, ye in zip(np.asarray(x_start), np.asarray(y_start),
+                                          np.asarray(x_end), np.asarray(y_end)):
+                    dx = (xe - xs) / num_segments
+                    dy = (ye - ys) / num_segments
+                    alphas = np.linspace(1, 0, num_segments)
+                    for i in range(num_segments):
+                        ax.plot([xs + i*dx, xs + (i+1)*dx],
+                                [ys + i*dy, ys + (i+1)*dy],
+                                color=color, alpha=float(alphas[i]), linewidth=linewidth, zorder=3)
+        
+            def plot_comet_line2(ax, x_start, y_start, x_end, y_end, color="blue", num_segments=10, linewidth=2.0):
+                for xs, ys, xe, ye in zip(np.asarray(x_start), np.asarray(y_start),
+                                          np.asarray(x_end), np.asarray(y_end)):
+                    dx = (xe - xs) / num_segments
+                    dy = (ye - ys) / num_segments
+                    alphas = np.linspace(1, 0, num_segments)
+                    for i in range(num_segments):
+                        ax.plot([xs + i*dx, xs + (i+1)*dx],
+                                [ys + i*dy, ys + (i+1)*dy],
+                                color=color, alpha=float(alphas[i]), linewidth=linewidth, zorder=4)
+        
+            # If a player is chosen, filter to their passes and show receiver dropdown
+            if player_choice != "— Select —":
+                needed = {"typeId", "playerName", "x", "y", "end_x", "end_y"}
+                missing = [c for c in needed if c not in df.columns]
+                if missing:
+                    st.warning(f"Missing columns for plotting: {', '.join(missing)}")
+                else:
+                    passes = df[(df["typeId"] == "Pass") & (df["playerName"] == player_choice)].copy()
+        
+                    # receiver dropdown
+                    if "pass_recipient" in passes.columns:
+                        rx_options = passes["pass_recipient"].dropna().drop_duplicates().sort_values().tolist()
+                        receiver_choice = st.selectbox("Pass Receiver", ["— All —"] + rx_options, index=0, key="pa_receiver")
+                        if receiver_choice != "— All —":
+                            passes = passes[passes["pass_recipient"] == receiver_choice]
+                    else:
+                        receiver_choice = "— All —"
+        
+                    st.caption(f"{len(passes)} pass(es) selected.")
+        
+                    if not passes.empty:
+                        outcome_col = "outcome" if "outcome" in passes.columns else None
+                        keypass_col = "keyPass" if "keyPass" in passes.columns else None
+                        assist_col = "assist" if "assist" in passes.columns else None
+        
+                        def is_true(s):
+                            return s.astype(str).str.lower().isin(["1", "true", "yes"]).fillna(False)
+        
+                        playercomp = passes[passes[outcome_col].eq("Successful")] if outcome_col else passes.iloc[0:0]
+                        playerincomp = passes[passes[outcome_col].eq("Unsuccessful")] if outcome_col else passes.iloc[0:0]
+                        playersa = passes[is_true(passes[keypass_col])] if keypass_col in passes.columns else passes.iloc[0:0]
+                        playera = passes[is_true(passes[assist_col])] if assist_col in passes.columns else passes.iloc[0:0]
+        
+                        if not playercomp.empty:
+                            plot_comet_line(ax, playercomp["end_y"], playercomp["end_x"],
+                                                playercomp["y"],     playercomp["x"],
+                                                color="green", num_segments=20, linewidth=1.5)
+        
+                        if not playerincomp.empty:
+                            plot_comet_line(ax, playerincomp["end_y"], playerincomp["end_x"],
+                                                playerincomp["y"],     playerincomp["x"],
+                                                color="red", num_segments=20, linewidth=1.5)
+        
+                        if not playersa.empty:
+                            plot_comet_line(ax, playersa["end_y"], playersa["end_x"],
+                                                playersa["y"],     playersa["x"],
+                                                color="orange", num_segments=20, linewidth=1.8)
+        
+                        if not playera.empty:
+                            plot_comet_line2(ax, playera["end_y"], playera["end_x"],
+                                                 playera["y"],     playera["x"],
+                                                 color="blue", num_segments=10, linewidth=2.0)
+        
+                    else:
+                        st.info("No passes match the current selection.")
+            else:
+                st.caption("Select a player to show their passes.")
+        
+            st.pyplot(fig)
 
 
 
