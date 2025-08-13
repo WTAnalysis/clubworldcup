@@ -2704,7 +2704,25 @@ if matchlink:
                     if receiver_choice != "— All —":
                         title_text += f" to {receiver_choice}"
                     ax.set_title(title_text, fontproperties=title_font, color=TextColor)
-                # render at natural size (no stretching)
+                legend_labels = ['Completed Pass', 'Incompleted Pass', 'Shot Assist', 'Assist', 'Ball Carry']
+                legend_colors = ['green', 'red', 'orange', 'blue', 'purple']
+                
+                legend_lines = [Line2D([0], [0], color=c, linewidth=3) for c in legend_colors]
+                
+                leg = ax.legend(
+                    legend_lines, legend_labels,
+                    loc='center left',            # anchor to the right edge of the pitch
+                    bbox_to_anchor=(1.02, 0.5),   # (x, y) relative to axes; x>1.0 pushes it outside to the right
+                    frameon=False,
+                    ncol=1,
+                )
+                
+                # match your theme text color if you have it
+                try:
+                    for txt in leg.get_texts():
+                        txt.set_color(TextColor)
+                except Exception:
+                    pass
                 buf = io.BytesIO()
                 fig.savefig(buf, format="png", dpi=110, bbox_inches="tight")
                 buf.seek(0)
