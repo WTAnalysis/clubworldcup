@@ -2643,7 +2643,7 @@ if matchlink:
                     line_color=PitchLineColor,
                     pitch_color=PitchColor
                 )
-                fig, ax = pitch.draw(figsize=(6, 9))   # compact canvas; tweak if needed
+                fig, ax = pitch.draw(figsize=(7, 10.5))   # compact canvas; tweak if needed
                 fig.set_facecolor(BackgroundColor)
         
                 # comet helpers
