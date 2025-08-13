@@ -2604,7 +2604,7 @@ if matchlink:
             st.subheader("Player Actions")
         
             # left = pitch, right = controls
-            left_col, right_col = st.columns([3, 1], gap="large")  # adjust ratio if you like
+            left_col, right_col = st.columns([2, 1], gap="large")  # adjust ratio if you like
         
             # ---------------- CONTROLS (RIGHT) ----------------
             with right_col:
@@ -2643,7 +2643,7 @@ if matchlink:
                     line_color=PitchLineColor,
                     pitch_color=PitchColor
                 )
-                fig, ax = pitch.draw(figsize=(3.0, 4.6))   # compact canvas; tweak if needed
+                fig, ax = pitch.draw(figsize=(6, 9))   # compact canvas; tweak if needed
                 fig.set_facecolor(BackgroundColor)
         
                 # comet helpers
