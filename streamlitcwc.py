@@ -2860,7 +2860,7 @@ if matchlink:
                                 legend_labels  += ['Aerials (S)', 'Aerials (U)']
                         
                             if show_blocks:
-                                legend_handles.append(mkr('p', 'green', label='Blocks))
+                                legend_handles.append(mkr('p', 'green', label='Blocks'))
                                 legend_labels.append('Blocks (Save)')
                         
                             if show_ballrec:
