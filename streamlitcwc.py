@@ -2812,12 +2812,37 @@ if matchlink:
                         ax_image = add_image(
                             wtaimaged,
                             fig,
-                            left=0.75,        # push to right edge (same anchor space as legend)
+                            left=0.735,        # push to right edge (same anchor space as legend)
                             bottom=0.675,      # higher up so it sits above legend
                             width=0.225,       # adjust to fit
                             alpha=1,
                             interpolation='hanning'
                         )
+                        if player_choice != "— Select —" and "team_name" in starting_lineups.columns:
+                            try:
+                                # Get team name for the selected player
+                                teamname = starting_lineups.loc[starting_lineups['playerName'] == player_choice, 'team_name'].iloc[0]
+                        
+                                # Find team ID from teamdata
+                                teamlogoid = teamdata.loc[teamdata['name'] == teamname, 'id'].values[0]
+                        
+                                # Build image URL
+                                URL = f"https://omo.akamai.opta.net/image.php?h=www.scoresway.com&sport=football&entity=team&description=badges&dimensions=150&id={teamlogoid}"
+                        
+                                # Load image
+                                from urllib.request import urlopen
+                                from PIL import Image
+                                teamimage = Image.open(urlopen(URL))
+                        
+                                # Add to figure
+                                add_image(
+                                    teamimage,
+                                    fig,
+                                    left=0.735, bottom=0.2, width=0.225,
+                                    alpha=1, interpolation='hanning'
+                                )
+                            except Exception as e:
+                                st.warning(f"Could not load team logo: {e}")
                         legend_handles = []
                         legend_labels  = []
                         
