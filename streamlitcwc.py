@@ -2767,7 +2767,8 @@ if matchlink:
                         fontproperties=title_font,
                         color=TextColor,
                         ha="center",
-                        y=0.99,  # adjust spacing
+                        y=0.965,        # bring closer to the pitch
+                        linespacing=1.1 # tighter spacing between lines
                     )
                 
                     ax.set_title("")  # clear axes title
@@ -2853,7 +2854,7 @@ if matchlink:
                             wtaimaged,
                             fig,
                             left=0.735,        # push to right edge (same anchor space as legend)
-                            bottom=0.725,      # higher up so it sits above legend
+                            bottom=0.7,      # higher up so it sits above legend
                             width=0.225,       # adjust to fit
                             alpha=1,
                             interpolation='hanning'
