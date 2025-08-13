@@ -2812,9 +2812,9 @@ if matchlink:
                         ax_image = add_image(
                             wtaimaged,
                             fig,
-                            left=1.02,        # push to right edge (same anchor space as legend)
-                            bottom=0.6,      # higher up so it sits above legend
-                            width=0.25,       # adjust to fit
+                            left=0.8,        # push to right edge (same anchor space as legend)
+                            bottom=0.675,      # higher up so it sits above legend
+                            width=0.225,       # adjust to fit
                             alpha=1,
                             interpolation='hanning'
                         )
