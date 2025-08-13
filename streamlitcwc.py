@@ -1885,6 +1885,15 @@ if matchlink:
                 "SonarCarry": "yellow",
                 "HullColor": "#00106f"
             },
+            "UEFA Super Cup": {
+                "TextColor": "white",
+                "BackgroundColor": "#00106f",
+                "PitchColor": "#62c6dd",
+                "PitchLineColor": "black",
+                "SonarPass": "#62c6dd",
+                "SonarCarry": "yellow",
+                "HullColor": "#00106f"
+            },
             "Champions League Qualifiers": {
                 "TextColor": "white",
                 "BackgroundColor": "#00106f",
