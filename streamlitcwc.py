@@ -2610,7 +2610,7 @@ if matchlink:
                 line_color=PitchLineColor,
                 pitch_color=PitchColor
             )
-            fig, ax = pitch.draw(figsize=(3.0, 4.6))   # smaller canvas
+            fig, ax = pitch.draw(figsize=(9, 13.5))   # smaller canvas
             fig.set_facecolor(BackgroundColor)
 
             # --- player dropdown ---
