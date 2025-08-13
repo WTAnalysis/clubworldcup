@@ -2809,7 +2809,15 @@ if matchlink:
                         if show_goals:
                             plot_mask(m_goal,   facecolor="green", edgecolor="green", marker="*", size=100)
         
-
+                        ax_image = add_image(
+                            wtaimaged,
+                            fig,
+                            left=1.02,        # push to right edge (same anchor space as legend)
+                            bottom=0.88,      # higher up so it sits above legend
+                            width=0.08,       # adjust to fit
+                            alpha=1,
+                            interpolation='hanning'
+                        )
                         legend_handles = []
                         legend_labels  = []
                         
@@ -2819,14 +2827,12 @@ if matchlink:
                             Line2D([0], [0], color='red',    linewidth=3),
                             Line2D([0], [0], color='orange', linewidth=3),
                             Line2D([0], [0], color='blue',   linewidth=3),
-                            Line2D([0], [0], color='purple', linewidth=3),
                         ]
                         legend_labels += [
                             'Completed Pass',
                             'Incompleted Pass',
                             'Shot Assist',
                             'Assist',
-                            'Ball Carry',
                         ]
                         
                         # Helper to add a marker (no line)
@@ -2854,7 +2860,7 @@ if matchlink:
                                 legend_labels  += ['Aerials (S)', 'Aerials (U)']
                         
                             if show_blocks:
-                                legend_handles.append(mkr('p', 'green', label='Blocks (Save)'))
+                                legend_handles.append(mkr('p', 'green', label='Blocks))
                                 legend_labels.append('Blocks (Save)')
                         
                             if show_ballrec:
