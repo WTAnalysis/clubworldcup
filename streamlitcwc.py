@@ -2106,7 +2106,7 @@ if matchlink:
 
         })
         
-        tab1, tab2, tab3 = st.tabs(["Player Visual", "Match Momentum", "Average Positions"])
+        tab1, tab2, tab3, tab4 = st.tabs(["Overview", "Team Stats", "Match Events", "Player Actions"])
 
         
         
