@@ -2949,7 +2949,7 @@ if matchlink:
                         ha="center",
                         va="top",
                         fontsize=8,          # small text
-                        color=TextColor
+                        color=TextColor)
                         if player_choice != "— Select —" and "team_name" in starting_lineups.columns:
                             try:
                                 # Get team name for the selected player
