@@ -2957,7 +2957,7 @@ if matchlink:
                             # Blocks (keeper saves) – unchanged
                             if show_blocks:
                                 legend_handles.append(mkr('p', 'green', label='Blocks'))
-                                legend_labels.append('Blocks)
+                                legend_labels.append('Blocks')
                         
                             if show_ballrec:
                                 legend_handles.append(mkr('d', 'green', label='Ball Recoveries'))
