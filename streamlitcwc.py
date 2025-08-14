@@ -3062,35 +3062,44 @@ if matchlink:
                             except Exception:
                                 return 0
                         
-                        has_tackles       = (mask_count(m_tkl_s) + mask_count(m_tkl_u)) > 0
-                        has_aerials       = (mask_count(m_aer_s) + mask_count(m_aer_u)) > 0
-                        has_blocks        = mask_count(m_save) > 0
-                        has_ballrec       = mask_count(m_ballrec) > 0
-                        has_clearances    = mask_count(m_clear) > 0
-                        has_dribbles      = (mask_count(m_to_s) + mask_count(m_to_u)) > 0
-                        has_dispossessed  = mask_count(m_dispos) > 0
-                        has_shot_off      = mask_count(m_miss) > 0
-                        has_shot_blocked  = mask_count(m_as_blk) > 0
-                        has_shot_on       = mask_count(m_as_nblk) > 0
-                        has_goals         = mask_count(m_goal) > 0
-                        has_interceptions = mask_count(m_intr) > 0
-                        def has_rows(x):
-                            return isinstance(x, (pd.DataFrame, pd.Series)) and not x.empty
+                        import pandas as pd
+                        import numpy as np
                         
-                        # Ensure flags always exist (even if the corresponding DF wasn't built)
-                        has_carries        = has_rows(carries)        if 'carries' in locals()        else False
-                        has_tackles        = has_rows(tackles)        if 'tackles' in locals()        else False
-                        has_aerials        = has_rows(aerials)        if 'aerials' in locals()        else False
-                        has_blocks         = has_rows(blocks)         if 'blocks' in locals()         else False
-                        has_ballrec        = has_rows(ballrec)        if 'ballrec' in locals()        else False
-                        has_clearances     = has_rows(clearances)     if 'clearances' in locals()     else False
-                        has_interceptions  = has_rows(interceptions)  if 'interceptions' in locals()  else False
-                        has_dribbles       = has_rows(dribbles)       if 'dribbles' in locals()       else False
-                        has_dispossessed   = has_rows(dispossessed)   if 'dispossessed' in locals()   else False
-                        has_shot_off       = has_rows(shot_off)       if 'shot_off' in locals()       else False
-                        has_shot_blocked   = has_rows(shot_blocked)   if 'shot_blocked' in locals()   else False
-                        has_shot_on        = has_rows(shot_on)        if 'shot_on' in locals()        else False
-                        has_goals          = has_rows(goals)          if 'goals' in locals()          else False
+                        def has_data(x):
+                            """True if x has any elements/rows, for pandas, numpy, or plain containers."""
+                            if x is None:
+                                return False
+                            # pandas: DataFrame/Series
+                            if hasattr(x, "empty"):
+                                return not x.empty
+                            # numpy arrays
+                            if isinstance(x, np.ndarray):
+                                return x.size > 0
+                            # generic containers (list, tuple, set, dict, etc.)
+                            try:
+                                return len(x) > 0
+                            except Exception:
+                                # last resort (rare): truthiness
+                                return bool(x)
+                        
+                        # Helper to fetch a var if it exists (works at module level)
+                        def getvar(name, default=None):
+                            return globals().get(name, default)
+                        
+                        # Build the flags
+                        has_carries        = has_data(getvar("carries"))
+                        has_tackles        = has_data(getvar("tackles"))
+                        has_aerials        = has_data(getvar("aerials"))
+                        has_blocks         = has_data(getvar("blocks"))
+                        has_ballrec        = has_data(getvar("ballrec"))
+                        has_clearances     = has_data(getvar("clearances"))
+                        has_interceptions  = has_data(getvar("interceptions"))
+                        has_dribbles       = has_data(getvar("dribbles"))
+                        has_dispossessed   = has_data(getvar("dispossessed"))
+                        has_shot_off       = has_data(getvar("shot_off"))
+                        has_shot_blocked   = has_data(getvar("shot_blocked"))
+                        has_shot_on        = has_data(getvar("shot_on"))
+                        has_goals          = has_data(getvar("goals"))
                         legend_handles = []
                         legend_labels  = []
                         from matplotlib.lines import Line2D
