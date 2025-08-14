@@ -2873,7 +2873,7 @@ if matchlink:
                         if show_goals:
                             plot_mask(m_goal,   facecolor="green", edgecolor="green", marker="*", size=100)
                         if show_interceptions:
-                        plot_mask(m_intr, facecolor="green", edgecolor="green", marker="H", size=40)
+                            plot_mask(m_intr, facecolor="green", edgecolor="green", marker="H", size=40)
                         ax_image = add_image(
                             wtaimaged,
                             fig,
