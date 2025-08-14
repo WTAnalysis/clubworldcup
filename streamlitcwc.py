@@ -2721,15 +2721,22 @@ if matchlink:
                     outcome_col = "outcome" if "outcome" in passes.columns else None
                     keypass_col = "keyPass" if "keyPass" in passes.columns else None
                     assist_col = "assist" if "assist" in passes.columns else None
-        
+                
                     def is_true(s):  # handles 1/0, True/False, "1"/"True"
                         return s.astype(str).str.lower().isin(["1", "true", "yes"]).fillna(False)
-        
+                
                     playercomp = passes[passes[outcome_col].eq("Successful")] if outcome_col else passes.iloc[0:0]
                     playerincomp = passes[passes[outcome_col].eq("Unsuccessful")] if outcome_col else passes.iloc[0:0]
                     playersa = passes[is_true(passes[keypass_col])] if keypass_col in passes.columns else passes.iloc[0:0]
                     playera = passes[is_true(passes[assist_col])] if assist_col in passes.columns else passes.iloc[0:0]
-        
+                
+                    # --- Remove overlaps ---
+                    if not playersa.empty:
+                        playercomp = playercomp[~playercomp["id"].isin(playersa["id"])]
+                    if not playera.empty:
+                        playersa = playersa[~playersa["id"].isin(playera["id"])]
+                
+                    # --- Plot ---
                     if not playercomp.empty:
                         plot_comet_line(ax, playercomp["end_y"], playercomp["end_x"],
                                             playercomp["y"],     playercomp["x"],
@@ -2950,7 +2957,7 @@ if matchlink:
                             # Blocks (keeper saves) – unchanged
                             if show_blocks:
                                 legend_handles.append(mkr('p', 'green', label='Blocks'))
-                                legend_labels.append('Blocks (Save)')
+                                legend_labels.append('Blocks)
                         
                             if show_ballrec:
                                 legend_handles.append(mkr('d', 'green', label='Ball Recoveries'))
