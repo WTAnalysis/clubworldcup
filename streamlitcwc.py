@@ -3043,17 +3043,37 @@ if matchlink:
                                 )
                             except Exception as e:
                                 st.warning(f"Could not load team logo: {e}")
+                        def mask_count(mask):
+                            if mask is None:
+                                return 0
+                            try:
+                                return int(mask.fillna(False).astype(bool).sum())
+                            except Exception:
+                                return 0
+                        
+                        has_tackles       = (mask_count(m_tkl_s) + mask_count(m_tkl_u)) > 0
+                        has_aerials       = (mask_count(m_aer_s) + mask_count(m_aer_u)) > 0
+                        has_blocks        = mask_count(m_save) > 0
+                        has_ballrec       = mask_count(m_ballrec) > 0
+                        has_clearances    = mask_count(m_clear) > 0
+                        has_dribbles      = (mask_count(m_to_s) + mask_count(m_to_u)) > 0
+                        has_dispossessed  = mask_count(m_dispos) > 0
+                        has_shot_off      = mask_count(m_miss) > 0
+                        has_shot_blocked  = mask_count(m_as_blk) > 0
+                        has_shot_on       = mask_count(m_as_nblk) > 0
+                        has_goals         = mask_count(m_goal) > 0
+                        has_interceptions = mask_count(m_intr) > 0
                         legend_handles = []
                         legend_labels  = []
                         from matplotlib.lines import Line2D
-
+                        
                         # -- Passes (always shown) --
                         legend_handles += [
                             Line2D([0], [0], color='green',  linewidth=3),
                             Line2D([0], [0], color='red',    linewidth=3),
                             Line2D([0], [0], color='orange', linewidth=3),
                             Line2D([0], [0], color='blue',   linewidth=3),
-                            Line2D([0], [0], color='purple',   linewidth=3),
+                            Line2D([0], [0], color='purple', linewidth=3),
                         ]
                         legend_labels += [
                             'Completed Pass',
@@ -3074,62 +3094,56 @@ if matchlink:
                                 label=label
                             )
                         
-                        # -- Actions (only include if the checkbox is ticked) --
+                        # -- Actions (include only if checkbox is ticked AND the player actually had any) --
                         if player_choice != "— Select —":
-                            # For actions with S/U variants: show a single green shape in legend
-                            if show_tackles:
+                            if show_tackles and has_tackles:
                                 legend_handles.append(mkr('>', 'green', label='Tackles'))
                                 legend_labels.append('Tackles')
                         
-                            if show_aerials:
+                            if show_aerials and has_aerials:
                                 legend_handles.append(mkr('s', 'green', label='Aerials'))
                                 legend_labels.append('Aerials')
                         
-                            # Blocks (keeper saves) – unchanged
-                            if show_blocks:
+                            if show_blocks and has_blocks:
                                 legend_handles.append(mkr('p', 'green', label='Blocks'))
                                 legend_labels.append('Blocks')
                         
-                            if show_ballrec:
+                            if show_ballrec and has_ballrec:
                                 legend_handles.append(mkr('d', 'green', label='Ball Recoveries'))
                                 legend_labels.append('Ball Recoveries')
                         
-                            if show_clearances:
+                            if show_clearances and has_clearances:
                                 legend_handles.append(mkr('^', 'green', label='Clearances'))
                                 legend_labels.append('Clearances')
                         
-                            # Interceptions (your new item) – single green marker
-                            if show_interceptions:
+                            if show_interceptions and has_interceptions:
                                 legend_handles.append(mkr('H', 'green', label='Interceptions'))
                                 legend_labels.append('Interceptions')
                         
-                            # Dribbles have S/U but legend shows one green symbol
-                            if show_dribbles:
+                            if show_dribbles and has_dribbles:
                                 legend_handles.append(mkr('P', 'green', label='Dribbles'))
                                 legend_labels.append('Dribbles')
                         
-                            # Dispossessed – unchanged (always “unsuccessful” for the player)
-                            if show_dispossessed:
+                            if show_dispossessed and has_dispossessed:
                                 legend_handles.append(mkr('x', 'red', label='Dispossessed'))
                                 legend_labels.append('Dispossessed')
                         
-                            # Shots – leave as-is per your instruction
-                            if show_shot_off:
+                            if show_shot_off and has_shot_off:
                                 legend_handles.append(mkr('o', 'red', label='Shots Off Target'))
                                 legend_labels.append('Shots Off Target')
                         
-                            if show_shot_blocked:
+                            if show_shot_blocked and has_shot_blocked:
                                 legend_handles.append(mkr('o', 'yellow', edge='yellow', label='Shots Blocked'))
                                 legend_labels.append('Shots Blocked')
                         
-                            if show_shot_on:
+                            if show_shot_on and has_shot_on:
                                 legend_handles.append(mkr('o', 'green', label='Shots On Target'))
                                 legend_labels.append('Shots On Target')
                         
-                            if show_goals:
+                            if show_goals and has_goals:
                                 legend_handles.append(mkr('*', 'green', edge='green', size=12, label='Goals'))
                                 legend_labels.append('Goals')
-                                                
+                        
                         # Draw legend to the RIGHT of the pitch and include only what we built
                         leg = ax.legend(
                             legend_handles, legend_labels,
