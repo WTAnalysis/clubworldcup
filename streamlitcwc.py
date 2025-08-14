@@ -3066,27 +3066,26 @@ if matchlink:
                         import numpy as np
                         
                         def has_data(x):
-                            """True if x has any elements/rows, for pandas, numpy, or plain containers."""
                             if x is None:
                                 return False
-                            # pandas: DataFrame/Series
-                            if hasattr(x, "empty"):
+                            if hasattr(x, "empty"):            # pandas DF/Series
                                 return not x.empty
-                            # numpy arrays
-                            if isinstance(x, np.ndarray):
+                            if isinstance(x, np.ndarray):      # numpy
                                 return x.size > 0
-                            # generic containers (list, tuple, set, dict, etc.)
-                            try:
+                            try:                               # lists/tuples/sets/dicts, etc.
                                 return len(x) > 0
                             except Exception:
-                                # last resort (rare): truthiness
                                 return bool(x)
                         
-                        # Helper to fetch a var if it exists (works at module level)
-                        def getvar(name, default=None):
-                            return globals().get(name, default)
+                        # Capture BOTH local and global variables at this point
+                        scope = {}
+                        scope.update(globals())
+                        scope.update(locals())
                         
-                        # Build the flags
+                        def getvar(name, default=None):
+                            return scope.get(name, default)
+                        
+                        # Build the flags using the merged scope
                         has_carries        = has_data(getvar("carries"))
                         has_tackles        = has_data(getvar("tackles"))
                         has_aerials        = has_data(getvar("aerials"))
