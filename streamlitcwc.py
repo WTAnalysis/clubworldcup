@@ -2137,11 +2137,11 @@ if matchlink:
         player_options = ["-- Select a player --"] + sorted(player_list)
         
         # Player dropdown
-        playername = st.selectbox("Select Player Name", options=player_options)
         with tab1:
             st.write("Player Visuals")
             # include existing code or visuals
-        
+        playername = st.selectbox("Select Player Name", options=player_options)
+
         # Only show analysis if a valid player is selected
         if playername != "-- Select a player --":
             anderson = starting_lineups[starting_lineups["player_name"] == playername]
