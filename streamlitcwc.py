@@ -3105,15 +3105,15 @@ if matchlink:
                                 label=label
                             )
                         has_carries = not carries.empty
-
+                        if player_choice != "— Select —":
+                            if show_carries and has_carries:
+                                legend_handles.append(Line2D([0], [0], color='purple', linewidth=3))
+                                legend_labels.append('Carry')
 # ... existing action legend items ...
 
                             
                         # -- Actions (include only if checkbox is ticked AND the player actually had any) --
                         if player_choice != "— Select —":
-                            if show_carries and has_carries:
-                                legend_handles.append(Line2D([0], [0], color='purple', linewidth=3))
-                                legend_labels.append('Carry')
                             if show_tackles and has_tackles:
                                 legend_handles.append(mkr('>', 'green', label='Tackles'))
                                 legend_labels.append('Tackles')
