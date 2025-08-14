@@ -2124,11 +2124,10 @@ if matchlink:
             "HullColor": "default"
 
         })
-        st.session_state["BackgroundColor"] = BackgroundColor
-        st.session_state["TextColor"]       = TextColor
-        st.session_state["PitchLineColor"]  = PitchLineColor
-        st.session_state["PitchColor"]      = PitchColor
-        st.session_state["title_font"]      = title_font
+        st.session_state["BackgroundColor"] = league_colors_properties.get("BackgroundColor") or "white"
+        st.session_state["TextColor"]       = league_colors_properties.get("TextColor") or "black"
+        st.session_state["PitchLineColor"]  = league_colors_properties.get("PitchLineColor") or "black"
+        st.session_state["PitchColor"]      = league_colors_properties.get("PitchColor") or "white"
         tab1, tab2, tab3, tab4 = st.tabs(["Player Overview", "Match Momentum", "Average Positions", "Custom Player Actions"])
 
         
