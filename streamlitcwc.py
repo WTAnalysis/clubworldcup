@@ -2804,7 +2804,56 @@ if matchlink:
                     )
                 
                     ax.set_title("")  # clear axes title
-        
+                if player_choice != "— Select —" and "player_name" in starting_lineups.columns:
+                    try:
+                        row = starting_lineups.loc[starting_lineups["player_name"] == player_choice].iloc[0]
+                    except Exception:
+                        row = None
+                
+                    def pick(col, default="N/A"):
+                        return (row[col] if (row is not None and col in starting_lineups.columns and pd.notna(row[col])) else default)
+                
+                    # fetch values
+                    minutes_played = pick("minutes_played")
+                    try:
+                        # render minutes cleanly if numeric
+                        if minutes_played != "N/A":
+                            minutes_played = int(float(minutes_played))
+                    except Exception:
+                        pass
+                
+                    position_val   = pick("position")
+                    player_impact  = pick("Player Impact")
+                    match_rank     = pick("Match Rank")
+                
+                    # build impact string like: "7.4 (Match Rank: 3)"
+                    if player_impact != "N/A" and match_rank != "N/A":
+                        impact_str = f"{player_impact} (Match Rank: {match_rank})"
+                    elif player_impact != "N/A":
+                        impact_str = f"{player_impact}"
+                    else:
+                        impact_str = "N/A"
+                
+                    # Compose footer line
+                    footer_parts = [
+                        f"Minutes Played: {minutes_played}",
+                        f"Position: {position_val}",
+                        f"Player Impact: {impact_str}",
+                    ]
+                    footer_text = "   |   ".join(map(str, footer_parts))
+                
+                    # Position the text *just below* the pitch axes
+                    # (axes box -> a bit below its bottom)
+                    bbox = ax.get_position()
+                    fig.text(
+                        0.5,                      # centered
+                        bbox.y0 - 0.035,          # a touch below axes bottom
+                        footer_text,
+                        ha="center",
+                        va="top",
+                        fontproperties=title_font,
+                        color=TextColor,
+                    )    
                 # -------- ACTION MARKERS (non-passes), gated by checkboxes --------
                 if player_choice != "— Select —":
                     needed_xy = {"x", "y"}
