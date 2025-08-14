@@ -3084,7 +3084,7 @@ if matchlink:
                             Line2D([0], [0], color='red',    linewidth=3),
                             Line2D([0], [0], color='orange', linewidth=3),
                             Line2D([0], [0], color='blue',   linewidth=3),
-                            Line2D([0], [0], color='purple', linewidth=3),
+                            #Line2D([0], [0], color='purple', linewidth=3),
                         ]
                         legend_labels += [
                             'Completed Pass',
