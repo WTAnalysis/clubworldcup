@@ -2827,7 +2827,14 @@ if matchlink:
                     position_val   = pick("position")
                     player_impact  = pick("Player Impact")
                     match_rank     = pick("Match Rank")
-                
+                    
+                    # Ensure match_rank is a whole number if possible
+                    try:
+                        if match_rank != "N/A":
+                            match_rank = int(float(match_rank))
+                    except Exception:
+                        pass
+                    
                     # New compact Player Impact format
                     if player_impact != "N/A" and match_rank != "N/A":
                         impact_str = f"{player_impact} (#{match_rank})"
