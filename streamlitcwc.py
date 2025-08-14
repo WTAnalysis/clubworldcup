@@ -3062,142 +3062,127 @@ if matchlink:
                             except Exception:
                                 return 0
                         
-                        import pandas as pd
-                        import numpy as np
-                        
-                        def has_data(x):
-                            if x is None:
-                                return False
-                            if hasattr(x, "empty"):            # pandas DF/Series
-                                return not x.empty
-                            if isinstance(x, np.ndarray):      # numpy
-                                return x.size > 0
-                            try:                               # lists/tuples/sets/dicts, etc.
-                                return len(x) > 0
-                            except Exception:
-                                return bool(x)
-                        
-                        # Capture BOTH local and global variables at this point
-                        scope = {}
-                        scope.update(globals())
-                        scope.update(locals())
-                        
-                        def getvar(name, default=None):
-                            return scope.get(name, default)
-                        
-                        # Build the flags using the merged scope
-                        has_carries        = has_data(getvar("carries"))
-                        has_tackles        = has_data(getvar("tackles"))
-                        has_aerials        = has_data(getvar("aerials"))
-                        has_blocks         = has_data(getvar("blocks"))
-                        has_ballrec        = has_data(getvar("ballrec"))
-                        has_clearances     = has_data(getvar("clearances"))
-                        has_interceptions  = has_data(getvar("interceptions"))
-                        has_dribbles       = has_data(getvar("dribbles"))
-                        has_dispossessed   = has_data(getvar("dispossessed"))
-                        has_shot_off       = has_data(getvar("shot_off"))
-                        has_shot_blocked   = has_data(getvar("shot_blocked"))
-                        has_shot_on        = has_data(getvar("shot_on"))
-                        has_goals          = has_data(getvar("goals"))
+                        has_tackles       = (mask_count(m_tkl_s) + mask_count(m_tkl_u)) > 0
+                        has_aerials       = (mask_count(m_aer_s) + mask_count(m_aer_u)) > 0
+                        has_blocks        = mask_count(m_save) > 0
+                        has_ballrec       = mask_count(m_ballrec) > 0
+                        has_clearances    = mask_count(m_clear) > 0
+                        has_dribbles      = (mask_count(m_to_s) + mask_count(m_to_u)) > 0
+                        has_dispossessed  = mask_count(m_dispos) > 0
+                        has_shot_off      = mask_count(m_miss) > 0
+                        has_shot_blocked  = mask_count(m_as_blk) > 0
+                        has_shot_on       = mask_count(m_as_nblk) > 0
+                        has_goals         = mask_count(m_goal) > 0
+                        has_interceptions = mask_count(m_intr) > 0
                         legend_handles = []
                         legend_labels  = []
                         from matplotlib.lines import Line2D
-                        import numpy as np
-                        import pandas as pd
                         
-                        # If you already have this, keep yours (identical behavior is fine)
-                        def mask_count(mask):
-                            if mask is None:
-                                return 0
-                            try:
-                                # works for pd.Series / np.array / list-like booleans
-                                if hasattr(mask, "fillna"):
-                                    mask = mask.fillna(False)
-                                mask = np.asarray(mask, dtype=bool)
-                                return int(mask.sum())
-                            except Exception:
-                                return 0
+                        # -- Passes (always shown) --
+                        legend_handles += [
+                            Line2D([0], [0], color='green',  linewidth=3),
+                            Line2D([0], [0], color='red',    linewidth=3),
+                            Line2D([0], [0], color='orange', linewidth=3),
+                            Line2D([0], [0], color='blue',   linewidth=3),
+                            Line2D([0], [0], color='purple', linewidth=3),
+                        ]
+                        legend_labels += [
+                            'Completed Pass',
+                            'Incompleted Pass',
+                            'Shot Assist',
+                            'Assist',
+                            #'Carry',
+                        ]
                         
-                        def has_any(mask):
-                            return mask_count(mask) > 0
-                        
-                        # Look up variables from BOTH local and global scope so nothing is "missing"
-                        _scope = {}
-                        _scope.update(globals())
-                        _scope.update(locals())
-                        
-                        def getmask(name):
-                            return _scope.get(name, None)
-                        
-                        legend_items = []
-                        
-                        def add_line(color, label, lw=3):
-                            legend_items.append((Line2D([0], [0], color=color, linewidth=lw), label))
-                        
-                        def add_marker(marker, face, label, edge=None, size=8):
+                        # Helper to add a marker (no line)
+                        def mkr(marker, face, edge=None, size=8, label=''):
                             if edge is None:
                                 edge = face
-                            legend_items.append((
-                                Line2D([], [], linestyle='None',
-                                       marker=marker, markersize=size,
-                                       markerfacecolor=face, markeredgecolor=edge),
-                                label
-                            ))
+                            return Line2D(
+                                [], [], linestyle='None',
+                                marker=marker, markersize=size,
+                                markerfacecolor=face, markeredgecolor=edge,
+                                label=label
+                            )
+                        has_carries = not carries.empty
+
+# ... existing action legend items ...
+
+                            
+                        # -- Actions (include only if checkbox is ticked AND the player actually had any) --
+                        if player_choice != "— Select —":
+                            if show_carries and has_carries:
+                                legend_handles.append(Line2D([0], [0], color='purple', linewidth=3))
+                                legend_labels.append('Carry')
+                            if show_tackles and has_tackles:
+                                legend_handles.append(mkr('>', 'green', label='Tackles'))
+                                legend_labels.append('Tackles')
+                       
+                            if show_aerials and has_aerials:
+                                legend_handles.append(mkr('s', 'green', label='Aerials'))
+                                legend_labels.append('Aerials')
                         
-                        def maybe_add_marker(mask_name, marker, face, label, *, show=True, edge=None, size=8):
-                            m = getmask(mask_name)
-                            if show and has_any(m):
-                                add_marker(marker, face, label, edge=edge, size=size)
+                            if show_blocks and has_blocks:
+                                legend_handles.append(mkr('p', 'green', label='Blocks'))
+                                legend_labels.append('Blocks')
                         
-                        def maybe_add_line(mask_name, color, label, *, show=True, lw=3):
-                            m = getmask(mask_name)
-                            if show and has_any(m):
-                                add_line(color, label, lw=lw)
+                            if show_ballrec and has_ballrec:
+                                legend_handles.append(mkr('d', 'green', label='Ball Recoveries'))
+                                legend_labels.append('Ball Recoveries')
                         
-                        # --- Always show pass proxies (these do not depend on masks) ---
-                        add_line('green',  'Completed Pass')
-                        add_line('red',    'Incompleted Pass')
-                        add_line('orange', 'Shot Assist')
-                        add_line('blue',   'Assist')
+                            if show_clearances and has_clearances:
+                                legend_handles.append(mkr('^', 'green', label='Clearances'))
+                                legend_labels.append('Clearances')
                         
-                        # --- Conditionally show actions based on the SAME masks you used to plot ---
-                        # (Rename mask_* here if your variable names differ.)
-                        maybe_add_line   ('mask_carries',       'purple', 'Carry',            show=show_carries)
-                        maybe_add_marker ('mask_tackles',       '>',  'green',  'Tackles',    show=show_tackles)
-                        maybe_add_marker ('mask_aerials',       's',  'green',  'Aerials',    show=show_aerials)
-                        maybe_add_marker ('mask_blocks',        'p',  'green',  'Blocks',     show=show_blocks)
-                        maybe_add_marker ('mask_ballrec',       'd',  'green',  'Ball Recoveries', show=show_ballrec)
-                        maybe_add_marker ('mask_clearances',    '^',  'green',  'Clearances', show=show_clearances)
-                        maybe_add_marker ('mask_interceptions', 'H',  'green',  'Interceptions', show=show_interceptions)
-                        maybe_add_marker ('mask_dribbles',      'P',  'green',  'Dribbles',   show=show_dribbles)
-                        maybe_add_marker ('mask_dispossessed',  'x',  'red',    'Dispossessed', show=show_dispossessed)
-                        maybe_add_marker ('mask_shot_off',      'o',  'red',    'Shots Off Target', show=show_shot_off)
-                        maybe_add_marker ('mask_shot_blocked',  'o',  'yellow', 'Shots Blocked',    show=show_shot_blocked, edge='yellow')
-                        maybe_add_marker ('mask_shot_on',       'o',  'green',  'Shots On Target',  show=show_shot_on)
-                        maybe_add_marker ('mask_goals',         '*',  'green',  'Goals',      show=show_goals, edge='green', size=12)
+                            if show_interceptions and has_interceptions:
+                                legend_handles.append(mkr('H', 'green', label='Interceptions'))
+                                legend_labels.append('Interceptions')
                         
-                        # --- Build and draw the legend ---
-                        handles, labels = zip(*legend_items) if legend_items else ([], [])
+                            if show_dribbles and has_dribbles:
+                                legend_handles.append(mkr('P', 'green', label='Dribbles'))
+                                legend_labels.append('Dribbles')
+                        
+                            if show_dispossessed and has_dispossessed:
+                                legend_handles.append(mkr('x', 'red', label='Dispossessed'))
+                                legend_labels.append('Dispossessed')
+                        
+                            if show_shot_off and has_shot_off:
+                                legend_handles.append(mkr('o', 'red', label='Shots Off Target'))
+                                legend_labels.append('Shots Off Target')
+                        
+                            if show_shot_blocked and has_shot_blocked:
+                                legend_handles.append(mkr('o', 'yellow', edge='yellow', label='Shots Blocked'))
+                                legend_labels.append('Shots Blocked')
+                        
+                            if show_shot_on and has_shot_on:
+                                legend_handles.append(mkr('o', 'green', label='Shots On Target'))
+                                legend_labels.append('Shots On Target')
+                        
+                            if show_goals and has_goals:
+                                legend_handles.append(mkr('*', 'green', edge='green', size=12, label='Goals'))
+                                legend_labels.append('Goals')
+                        
+                        # Draw legend to the RIGHT of the pitch and include only what we built
                         leg = ax.legend(
-                            handles, labels,
+                            legend_handles, legend_labels,
                             loc='center left',
                             bbox_to_anchor=(1.02, 0.5),
                             frameon=False,
                             ncol=1,
                         )
                         
-                        # Optional: match your theme text color if you have TextColor defined
+                        # Match theme text color (if defined)
                         try:
                             for txt in leg.get_texts():
                                 txt.set_color(TextColor)
                         except Exception:
-                            pass                # render at natural size
+                            pass
+        
+                # render at natural size
                 buf = io.BytesIO()
                 fig.savefig(buf, format="png", dpi=110, bbox_inches="tight")
                 buf.seek(0)
                 st.image(buf)
                 plt.close(fig)
                 plt.close('all')
-
-
 
