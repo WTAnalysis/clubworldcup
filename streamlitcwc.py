@@ -2634,7 +2634,8 @@ if matchlink:
         
                 passes = df.iloc[0:0]         # default empty
                 receiver_choice = "— All —"   # default
-        
+                carries = df.iloc[0:0]         # default empty
+
                 if player_choice != "— Select —":
                     needed = {"typeId", "playerName", "x", "y", "end_x", "end_y"}
                     missing = [c for c in needed if c not in df.columns]
@@ -2642,7 +2643,7 @@ if matchlink:
                         st.warning(f"Missing columns for plotting: {', '.join(missing)}")
                     else:
                         passes = df[(df["typeId"] == "Pass") & (df["playerName"] == player_choice)].copy()
-        
+                        carries = df[(df["typeId"] == "Carry") & (df["playerName"] == player_choice)].copy()
                         if "pass_recipient" in passes.columns:
                             rx_options = passes["pass_recipient"].dropna().drop_duplicates().sort_values().tolist()
                             receiver_choice = st.selectbox(
@@ -2756,7 +2757,10 @@ if matchlink:
                         plot_comet_line2(ax, playera["end_y"], playera["end_x"],
                                              playera["y"],     playera["x"],
                                              color="blue", num_segments=10, linewidth=2.0)
-        
+                    if not carries.empty:
+                        plot_comet_line2(ax, carries["end_y"], carries["end_x"],
+                                             carries["y"],     carries["x"],
+                                             color="purple", num_segments=10, linewidth=2.0)
                 # title
                 if player_choice != "— Select —":
                     title_text = f"{player_choice} Actions & Passes"
@@ -2843,7 +2847,7 @@ if matchlink:
                     bbox = ax.get_position()
                     fig.text(
                         0.5,
-                        bbox.y0 - 0.035,
+                        bbox.y0 - 0.0175,
                         footer_text,
                         ha="center",
                         va="top",
@@ -2972,12 +2976,14 @@ if matchlink:
                             Line2D([0], [0], color='red',    linewidth=3),
                             Line2D([0], [0], color='orange', linewidth=3),
                             Line2D([0], [0], color='blue',   linewidth=3),
+                            Line2D([0], [0], color='purple',   linewidth=3),
                         ]
                         legend_labels += [
                             'Completed Pass',
                             'Incompleted Pass',
                             'Shot Assist',
                             'Assist',
+                            'Carry',
                         ]
                         
                         # Helper to add a marker (no line)
