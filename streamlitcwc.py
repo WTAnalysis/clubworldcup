@@ -2917,10 +2917,8 @@ if matchlink:
                 
                     # Tighter spacing between separators
                     def _mt_escape(s: str) -> str:
-                        # escape chars that mathtext treats specially
                         for ch in r"\^_{}%#&$":
                             s = s.replace(ch, "\\" + ch)
-                        # preserve spaces inside math mode
                         return s.replace(" ", r"\ ")
                     
                     def _bold_val(v) -> str:
@@ -2943,9 +2941,8 @@ if matchlink:
                         va="top",
                         fontproperties=title_font,
                         color=TextColor,
-                        # keep mathtext font aligned with your chosen font if possible
-                        math_fontfamily=getattr(title_font, "get_name", lambda: None)(),
-                    )  
+                    )  # ← no math_fontfamily here
+
                 # -------- ACTION MARKERS (non-passes), gated by checkboxes --------
                 if player_choice != "— Select —":
                     needed_xy = {"x", "y"}
