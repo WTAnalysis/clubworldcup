@@ -2847,7 +2847,7 @@ if matchlink:
                     bbox = ax.get_position()
                     fig.text(
                         0.5,
-                        bbox.y0 - 0.0175,
+                        bbox.y0 - 0.075,
                         footer_text,
                         ha="center",
                         va="top",
@@ -2942,6 +2942,14 @@ if matchlink:
                             alpha=1,
                             interpolation='hanning'
                         )
+                        fig.text(
+                        0.735 + 0.225 / 2,   # horizontally center under the image
+                        0.135 - 0.02,        # a bit below the bottom of the image
+                        "Data via Opta",
+                        ha="center",
+                        va="top",
+                        fontsize=8,          # small text
+                        color=TextColor
                         if player_choice != "— Select —" and "team_name" in starting_lineups.columns:
                             try:
                                 # Get team name for the selected player
