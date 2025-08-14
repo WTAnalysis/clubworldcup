@@ -3094,7 +3094,7 @@ if matchlink:
                 buf.seek(0)
                 st.image(buf)
                 plt.close(fig)
-
+                plt.close('all')
 
 
 
