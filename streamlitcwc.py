@@ -2187,290 +2187,284 @@ if matchlink:
                     st.info(f"{playername} plays for {teamname}")
         
                     TextColor = league_colors_properties["TextColor"]
-                            BackgroundColor = league_colors_properties["BackgroundColor"]
-                            PitchColor = league_colors_properties["PitchColor"]
-                            PitchLineColor = league_colors_properties["PitchLineColor"]
-                            SonarPass = league_colors_properties["SonarPass"]
-                            SonarCarry = league_colors_properties["SonarCarry"]
-                            HullColor = league_colors_properties["HullColor"]
-                            print(f"TextColor: {TextColor}, BackgroundColor: {BackgroundColor}")
-                            player_impact = totalxt.loc[totalxt['playerName'] == playername, 'Player Impact']
-                            match_rank = totalxt.loc[totalxt['playerName'] == playername, 'Match Rank']
+                    BackgroundColor = league_colors_properties["BackgroundColor"]
+                    PitchColor = league_colors_properties["PitchColor"]
+                    PitchLineColor = league_colors_properties["PitchLineColor"]
+                    SonarPass = league_colors_properties["SonarPass"]
+                    SonarCarry = league_colors_properties["SonarCarry"]
+                    HullColor = league_colors_properties["HullColor"]
+                    print(f"TextColor: {TextColor}, BackgroundColor: {BackgroundColor}")
+                    player_impact = totalxt.loc[totalxt['playerName'] == playername, 'Player Impact']
+                    match_rank = totalxt.loc[totalxt['playerName'] == playername, 'Match Rank']
+            
+                    # Display the result
+                    player_impact_value = player_impact.iloc[0] if not player_impact.empty else None
+                    match_rank_value = match_rank.iloc[0] if not match_rank.empty else None
+                    anderson = df.loc[df['playerName']== playername]
+                    anderson = anderson.loc[anderson['typeId']!='Out']
+                    anderson = anderson.loc[anderson['typeId']!='Player off']
+                    anderson = anderson.loc[anderson['typeId']!='Player on']
+                    anderson = anderson[~((anderson['x'] == 0) & (anderson['y'] == 0))]
+                    prf3comp = anderson.loc[(anderson['outcome']=='Successful') & (anderson['typeId']=='Pass')]
+                    prf3incomp = anderson.loc[(anderson['outcome']=='Unsuccessful') & (anderson['typeId']=='Pass') ]
+                    shotassist = anderson.loc[anderson['keyPass']==1]
+                    shotassist = shotassist.loc[shotassist['typeId']=='Pass']
+                    goalassist = anderson.loc[anderson['assist']==1]
+                    goalassist = goalassist.loc[goalassist['typeId']=='Pass']
+            
+                    takeon = anderson.loc[(anderson['typeId']=='Take On')]
+                    takeont = takeon.loc[takeon['outcome'] == 'Successful']
+                    takeonf = takeon.loc[takeon['outcome'] != 'Successful']
+                    tackle = anderson.loc[(anderson['typeId']=='Tackle')]
+                    tacklet = tackle.loc[tackle['outcome'] == 'Successful']
+                    tacklef = tackle.loc[tackle['outcome'] != 'Successful']
+                    aerial = anderson.loc[(anderson['typeId']=='Aerial')]
+                    aerialt = aerial.loc[aerial['outcome'] == 'Successful']
+                    aerialf = aerial.loc[aerial['outcome'] != 'Successful']
+                    fouls = anderson.loc[anderson['typeId'] == 'Foul']
+                    fouls = fouls.loc[fouls['outcome'] == 'Unsuccessful']
+            
+            
+                    ballrec = anderson.loc[(anderson['typeId']=='Ball recovery')]
+                    clearance = anderson.loc[(anderson['typeId']=='Clearance')]
+                    interception = anderson.loc[(anderson['typeId']=='Interception') ]
+                    shotblocked = anderson.loc[(anderson['typeId']=='Save')]
+            
+                    disposs = anderson.loc[(anderson['typeId']=='Dispossessed')]
+                    playercarry = anderson.loc[anderson['typeId']=='Carry']
+            
+                    #shotblock = anderson.loc[(anderson['shot']==True) & (anderson['82']==True) & (anderson['player_name'] == playerrequest)]
+                    shotoff = anderson.loc[(anderson['typeId'] == 'Miss')]
+                    shoton = anderson.loc[(anderson['typeId'] == 'Attempt Saved')]
+                    shotgoal = anderson.loc[(anderson['typeId'] == 'Goal')]
+                    playertouchmap = anderson.loc[anderson['typeId']!='Player on']
+                    playertouchmap = playertouchmap.loc[playertouchmap['typeId']!='Player off']
+                    ## IMPORT RELEVANT LIBRARIES
+            
+                    import pandas as pd
+                    import numpy as np
+                    import mplsoccer as mpl
+                    from mplsoccer import Pitch, add_image
+                    import matplotlib.pyplot as plt
+                    from matplotlib.patches import Arc
+                    from urllib.request import urlopen
+                    from PIL import Image
+                    import matplotlib.patheffects as path_effects
+                    from matplotlib.colors import LinearSegmentedColormap
+                    from scipy.ndimage import gaussian_filter
+                    from mplsoccer import Pitch, VerticalPitch, FontManager, Sbopen
+                    from datetime import datetime
+                    import matplotlib.font_manager as font_manager
+                    from matplotlib.font_manager import FontProperties
+                    playerrequest = playername
+                    #teamname = 'England U21'
+                    #opponentname = 'Azerbaijan U21'
+                    title_font = FontProperties(family='Tahoma', size=15)
+                    #playercarry = playercarry.loc[playercarry['team_name']=='Bradford']
+                    playercarry = playercarry.loc[playercarry['end_y']> 0]
+                    playercarry = playercarry.loc[playercarry['end_x']> 0]
+                    playercarry = playercarry.loc[playercarry['x']> 2.5]
+            
+                    playercarry = playercarry.loc[playercarry['end_y']< 100]
+                    playercarry = playercarry.loc[playercarry['end_x']< 100]
+                    playercarry = playercarry.loc[playercarry['end_x'] < 99.5]
+            
+                    playercarry['y_diff'] = playercarry['y'] - playercarry['end_y']
+                    playercarry = playercarry.loc[playercarry['y_diff']>-25]
+                    playercarry = playercarry.loc[playercarry['y_diff']<25]
+                    playercarry = playercarry[~(((playercarry['x'] == 0) & (playercarry['end_x'] == 0)) | ((playercarry['y'] == 0) & (playercarry['end_y'] == 0)))]
+            
+                    #teamname = anderson.iloc[0]['team_name']
+                    teamlogoid = teamdata.loc[teamdata['name'] == teamname, 'id'].values[0]
+                    opponentname2 = teamdata.loc[teamdata['name'] != teamname, 'name'].values[0]
+            
+                    URL = f"https://omo.akamai.opta.net/image.php?h=www.scoresway.com&sport=football&entity=team&description=badges&dimensions=150&id={teamlogoid}"
+                    # EFFIONG https://cdn5.wyscout.com/photos/players/public/g144828_100x130.png
+                    teamimage = Image.open(urlopen(URL))
+                    from PIL import Image
+            
+                    wtaimaged = Image.open("wtatransnew.png")
+                    from matplotlib.offsetbox import OffsetImage, AnnotationBbox
+                    import matplotlib.pyplot as plt
+                    import numpy as np
+                    from scipy.stats import gaussian_kde
+                    from scipy.spatial import ConvexHull
+            
+                    # Create a figure with three subplots side by side
+                    fig, axes = plt.subplots(1, 3, figsize=(24, 8.25), facecolor=BackgroundColor)  # Adjust the figsize as needed
+                    plt.subplots_adjust(wspace=-0.5)
+            
+                    # Define the pitch dimensions and other options
+                    pitch_arrows = VerticalPitch(pitch_type='opta', pitch_color=PitchColor, line_color=PitchLineColor)
+                    pitch_bins = VerticalPitch(pitch_type='opta', pitch_color=PitchColor, line_color=PitchLineColor)
+                    pitch_third = VerticalPitch(pitch_type='opta', pitch_color=PitchColor, line_color=PitchLineColor)  # New pitch instance
+            
+                    # Draw the first pitch with comet-like lines
+                    pitch_arrows.draw(ax=axes[0], figsize=(8, 8.25), constrained_layout=True, tight_layout=False)  # Adjust figsize if needed
+                    axes[0].set_title(f'{playerrequest} - Passes & Carries', fontproperties=title_font, color=TextColor)
+            
+                    # Plot comet-like lines on the first pitch subplot (axes[0])
+                    def plot_comet_line(ax, x_start, y_start, x_end, y_end, color='green', num_segments=20):
+                        dx = (x_end - x_start) / num_segments
+                        dy = (y_end - y_start) / num_segments
+                        alphas = np.linspace(1, 0, num_segments)
+                        for i in range(num_segments):
+                            ax.plot([x_start + i*dx, x_start + (i+1)*dx], 
+                                    [y_start + i*dy, y_start + (i+1)*dy], 
+                                    color=color, alpha=alphas[i])
+            
+                    # Plot comet-like lines
+                    plot_comet_line(axes[0], prf3comp.end_y, prf3comp.end_x,
+                                    prf3comp.y, prf3comp.x, color='green', num_segments=20)
+            
+                    plot_comet_line(axes[0], prf3incomp.end_y, prf3incomp.end_x,
+                                    prf3incomp.y, prf3incomp.x, color='red', num_segments=20)
+            
+                    plot_comet_line(axes[0], shotassist.end_y, shotassist.end_x,
+                                    shotassist.y, shotassist.x, color='orange', num_segments=20)
+            
+                    plot_comet_line(axes[0], playercarry.end_y, playercarry.end_x,
+                                    playercarry.y, playercarry.x, color='purple', num_segments=20)
+            
+                    def plot_comet_line2(ax, x_start, y_start, x_end, y_end, color='blue', num_segments=10, linewidth=1.0):
+                        dx = (x_end - x_start) / num_segments
+                        dy = (y_end - y_start) / num_segments
+                        alphas = np.linspace(1, 0, num_segments)
+                        for i in range(num_segments):
+                            ax.plot([x_start + i*dx, x_start + (i+1)*dx], 
+                                    [y_start + i*dy, y_start + (i+1)*dy], 
+                                    color=color, alpha=alphas[i], linewidth=2)
+            
+                    plot_comet_line2(axes[0], goalassist.end_y, goalassist.end_x,
+                                    goalassist.y, goalassist.x, color='blue', num_segments=10)
+            
+                    # Draw the second pitch on the second subplot
+                    pitch_bins.draw(ax=axes[1], figsize=(8, 8.25), constrained_layout=True, tight_layout=False)  # Adjust figsize if needed
+                    axes[1].set_title(f'{playerrequest} - Touch Map', fontproperties=title_font, color=TextColor)
+            
+            
+                    # Plotting small round dots for each row in the DataFrame on the second pitch subplot (axes[1])
+                    for index, row in playertouchmap.iterrows():
+                        x = row['y']  # Assuming 'y' is the column name for x-coordinate
+                        y = row['x']  # Assuming 'x' is the column name for y-coordinate
+                        axes[1].plot(x, y, marker='o', markeredgecolor=BackgroundColor, markerfacecolor='none', markersize=5)  # Adjust marker size, color, and transparency as needed
+            
+                    x_coords = playertouchmap['y']  # Assuming 'y' is the column name for x-coordinate
+                    y_coords = playertouchmap['x']  # Assuming 'x' is the column name for y-coordinate
+            
+                    # Combining x and y coordinates into a single array
+                    points = np.column_stack((x_coords, y_coords))
+            
+                    # Perform kernel density estimation
+                    #kde = gaussian_kde(points.T)
+            
+                    # Evaluate the KDE on a grid
+                    #x_grid, y_grid = np.meshgrid(np.linspace(0, 120, 100), np.linspace(0, 80, 100))
+                    #density = kde(np.vstack([x_grid.ravel(), y_grid.ravel()]))
+            
+                    # Find the point with the highest density
+                    #max_density_index = np.argmax(density)
+                    #max_density_x = x_grid.ravel()[max_density_index]
+                    #max_density_y = y_grid.ravel()[max_density_index]
+            
+                    # Define a radius around the point with the highest density
+                    radius = 20  # Adjust as needed
+            
+                    # Filter points within the radius
+                    #points_within_radius = points[((points[:, 0] - max_density_x) ** 2 + (points[:, 1] - max_density_y) ** 2) < radius ** 2]
+            
+                    # Compute convex hull around points within the radius
+                    #hull = ConvexHull(points_within_radius)
+            
+                    # Plotting the convex hull on the second pitch subplot (axes[1])
+                    #x_hull = points_within_radius[hull.vertices, 0]
+                    #y_hull = points_within_radius[hull.vertices, 1]
+            
+                    #axes[1].fill(x_hull, y_hull, color=BackgroundColor, alpha=0.25, edgecolor=BackgroundColor)
+            
+                    # Draw the third pitch on the third subplot
+                    pitch_third.draw(ax=axes[2], figsize=(8, 8.25), constrained_layout=True, tight_layout=False)  # Adjust figsize if needed
+                    axes[2].set_title(f'{playerrequest} - Event Map', fontproperties=title_font, color=TextColor)  # Add a suitable title
+            
+                    scatter1 = pitch_third.scatter(tacklet.x, tacklet.y, ax=axes[2], facecolor='green', edgecolor='green', marker='>', label='Tackle', s=40)
+                    scatter2 = pitch_third.scatter(tacklef.x, tacklef.y, ax=axes[2], facecolor='red', edgecolor='red',marker='>', s=40)
+                    #scatter15 = pitch_third.scatter(foulsl.x, foulsl.y, ax=axes[2], facecolor='red', edgecolor='red',marker='>', s=40)
+                    scatter3 = pitch_third.scatter(aerialt.x, aerialt.y, ax=axes[2], facecolor='green',edgecolor='green', marker='s', label='Aerial', s=40)
+                    scatter4 = pitch_third.scatter(aerialf.x, aerialf.y, ax=axes[2], facecolor='red',edgecolor='red', marker='s', s=40)
+                    scatter5 = pitch_third.scatter(shotblocked.x, shotblocked.y, ax=axes[2], facecolor='green',edgecolor='green', marker='p', label='Attempts Blocked', s=40)
+                    scatter6 = pitch_third.scatter(ballrec.x, ballrec.y, ax=axes[2], facecolor='green',edgecolor='green', marker='d', label='Ball Recoveries', s=40)
+                    scatter7 = pitch_third.scatter(clearance.x, clearance.y, ax=axes[2], facecolor='green',edgecolor='green', marker='^', label='Clearance', s=40)
+                    scatter8 = pitch_third.scatter(takeont.x, takeont.y, ax=axes[2], facecolor='green',edgecolor='green', marker='P', label='Take On', s=40)
+                    scatter9 = pitch_third.scatter(takeonf.x, takeonf.y, ax=axes[2], facecolor='red',edgecolor='red', marker='P', s=40)
+                    scatter10 = pitch_third.scatter(disposs.x, disposs.y, ax=axes[2], facecolor='red',edgecolor='red', marker='x', s=40, label = 'Dispossesed')
+                    #scatter11 = pitch_third.scatter(shotblock.x, shotblock.y, ax=axes[2], facecolor='yellow',edgecolor='yellow', marker='o', s=40, label = 'Shot Blocked')
+                    scatter12 = pitch_third.scatter(shotoff.x, shotoff.y, ax=axes[2], facecolor='red', marker='o',edgecolor='red', label='Shot Off Target', s=40)
+                    scatter13 = pitch_third.scatter(shoton.x, shoton.y, ax=axes[2], facecolor='green', marker='o',edgecolor='green', label='Shot On Target', s=40)
+                    scatter14 = pitch_third.scatter(shotgoal.x, shotgoal.y, ax=axes[2], facecolor='green', marker='*',edgecolor='green', label='Goal', s=100)
+                    scatter15 = pitch_third.scatter(fouls.x, fouls.y, ax=axes[2], facecolor='red', marker='>',edgecolor='red',s=40)
+            
+                    # Add legend
+                    legend = axes[2].legend(handles=[scatter1, scatter3, scatter5, scatter6,
+                                                     scatter7, scatter8, #scatter11, 
+                                                     scatter10,
+                                                     scatter13, scatter14
+                                                    ], 
+                                                     loc='upper center', bbox_to_anchor=(0.5, -0.02), ncol=2, facecolor='silver', frameon=False,labelcolor =TextColor)
+                    # Legend for the first subplot (axes[0])
+                    # Add text under the first pitch subplot (axes[0])
+            
+                    #axes[0].text(91.65, -5, 'Completed Pass', ha='center', fontsize=9, color='green')
+                    #axes[0].text(62, -5, 'Incompleted Pass', ha='center', fontsize=9, color='red')
+                    #axes[0].text(37, -5, 'Shot Assist', ha='center', fontsize=9, color='orange')
+                    #axes[0].text(21, -5, 'Assist', ha='center', fontsize=9, color='blue')
+                    #axes[0].text(5, -5, 'Ball Carry', ha='center', fontsize=9, color='#f4ffb5')
+                    from matplotlib.lines import Line2D
+            
+                    legend_labels = ['Completed Pass', 'Incompleted Pass', 'Shot Assist', 'Assist', 'Ball Carry']
+                    legend_colors = ['green', 'red', 'orange', 'blue', 'purple']
                     
-                            # Display the result
-                            player_impact_value = player_impact.iloc[0] if not player_impact.empty else None
-                            match_rank_value = match_rank.iloc[0] if not match_rank.empty else None
-                            anderson = df.loc[df['playerName']== playername]
-                            anderson = anderson.loc[anderson['typeId']!='Out']
-                            anderson = anderson.loc[anderson['typeId']!='Player off']
-                            anderson = anderson.loc[anderson['typeId']!='Player on']
-                            anderson = anderson[~((anderson['x'] == 0) & (anderson['y'] == 0))]
-                            prf3comp = anderson.loc[(anderson['outcome']=='Successful') & (anderson['typeId']=='Pass')]
-                            prf3incomp = anderson.loc[(anderson['outcome']=='Unsuccessful') & (anderson['typeId']=='Pass') ]
-                            shotassist = anderson.loc[anderson['keyPass']==1]
-                            shotassist = shotassist.loc[shotassist['typeId']=='Pass']
-                            goalassist = anderson.loc[anderson['assist']==1]
-                            goalassist = goalassist.loc[goalassist['typeId']=='Pass']
+                    # Create Line2D handles for legend
+                    legend_lines = [Line2D([0], [0], color=color, linewidth=3) for color in legend_colors]
                     
-                            takeon = anderson.loc[(anderson['typeId']=='Take On')]
-                            takeont = takeon.loc[takeon['outcome'] == 'Successful']
-                            takeonf = takeon.loc[takeon['outcome'] != 'Successful']
-                            tackle = anderson.loc[(anderson['typeId']=='Tackle')]
-                            tacklet = tackle.loc[tackle['outcome'] == 'Successful']
-                            tacklef = tackle.loc[tackle['outcome'] != 'Successful']
-                            aerial = anderson.loc[(anderson['typeId']=='Aerial')]
-                            aerialt = aerial.loc[aerial['outcome'] == 'Successful']
-                            aerialf = aerial.loc[aerial['outcome'] != 'Successful']
-                            fouls = anderson.loc[anderson['typeId'] == 'Foul']
-                            fouls = fouls.loc[fouls['outcome'] == 'Unsuccessful']
+                    # Add legend under pitch 1
+                    axes[0].legend(legend_lines, legend_labels,
+                                   loc='upper center',
+                                   bbox_to_anchor=(0.22, -0.02),  # Adjust vertical position as needed
+                                   ncol=1,
+                                   facecolor=BackgroundColor,
+                                   frameon=False,
+                                   labelcolor=TextColor)
+            
+                    axes[0].text(50, -5, 'Data from Opta', ha='center', fontsize=9, color=TextColor)
+                    axes[0].text(25, -9, 'Opponent:', ha='center', fontsize=14, color=TextColor)
+                    axes[0].text(25, -13, f'{opponentname2}', ha='center', fontsize=14, color=TextColor, fontweight='bold')
+            
+                    axes[0].text(25, -19, 'Player Impact Score:', ha='center', fontsize=14, color=TextColor)
+                    axes[0].text(25, -23, f'{player_impact_value} (#{match_rank_value})', ha='center', fontsize=14, color=TextColor, fontweight='bold')
+            
+            
+            
+                    axes[1].text(50, -5, 'All events plotted', ha='center', fontsize=9, color=TextColor)
+            
+                    axes[2].text(50, -5, 'Green shows successful action, red shows unsuccessful', ha='center', fontsize=9, color=TextColor)
+            
+                    #ax_image = add_image(playerimage, fig, left=0.4225, bottom=-0.04, width=0.04,
+                    #                    alpha=1, interpolation='hanning')
+            
+                    #ax_image = add_image(playerimage, fig, left=0.45, bottom=-0.045, width=0.03,
+                    #                     alpha=1, interpolation='hanning')
+                    ax_image = add_image(teamimage, fig, left=0.5375, bottom=-0.049, width=0.055,
+                                         alpha=1, interpolation='hanning')
+            
+                    ax_image = add_image(wtaimaged, fig, left=0.4375, bottom=-0.029, width=0.055,
+                                         alpha=1, interpolation='hanning')
+                    #ax_image = add_image(leagueimage, fig, left=0.565, bottom=-0.03175, width=0.03,
+                    #                     alpha=1, interpolation='hanning')
+                    dpi = 600
+                    st.pyplot(fig)
+                    st.success("Analysis Complete!")
+                    plt.close(fig)
                     
-                    
-                            ballrec = anderson.loc[(anderson['typeId']=='Ball recovery')]
-                            clearance = anderson.loc[(anderson['typeId']=='Clearance')]
-                            interception = anderson.loc[(anderson['typeId']=='Interception') ]
-                            shotblocked = anderson.loc[(anderson['typeId']=='Save')]
-                    
-                            disposs = anderson.loc[(anderson['typeId']=='Dispossessed')]
-                            playercarry = anderson.loc[anderson['typeId']=='Carry']
-                    
-                            #shotblock = anderson.loc[(anderson['shot']==True) & (anderson['82']==True) & (anderson['player_name'] == playerrequest)]
-                            shotoff = anderson.loc[(anderson['typeId'] == 'Miss')]
-                            shoton = anderson.loc[(anderson['typeId'] == 'Attempt Saved')]
-                            shotgoal = anderson.loc[(anderson['typeId'] == 'Goal')]
-                            playertouchmap = anderson.loc[anderson['typeId']!='Player on']
-                            playertouchmap = playertouchmap.loc[playertouchmap['typeId']!='Player off']
-                            ## IMPORT RELEVANT LIBRARIES
-                    
-                            import pandas as pd
-                            import numpy as np
-                            import mplsoccer as mpl
-                            from mplsoccer import Pitch, add_image
-                            import matplotlib.pyplot as plt
-                            from matplotlib.patches import Arc
-                            from urllib.request import urlopen
-                            from PIL import Image
-                            import matplotlib.patheffects as path_effects
-                            from matplotlib.colors import LinearSegmentedColormap
-                            from scipy.ndimage import gaussian_filter
-                            from mplsoccer import Pitch, VerticalPitch, FontManager, Sbopen
-                            from datetime import datetime
-                            import matplotlib.font_manager as font_manager
-                            from matplotlib.font_manager import FontProperties
-                            playerrequest = playername
-                            #teamname = 'England U21'
-                            #opponentname = 'Azerbaijan U21'
-                            title_font = FontProperties(family='Tahoma', size=15)
-                            #playercarry = playercarry.loc[playercarry['team_name']=='Bradford']
-                            playercarry = playercarry.loc[playercarry['end_y']> 0]
-                            playercarry = playercarry.loc[playercarry['end_x']> 0]
-                            playercarry = playercarry.loc[playercarry['x']> 2.5]
-                    
-                            playercarry = playercarry.loc[playercarry['end_y']< 100]
-                            playercarry = playercarry.loc[playercarry['end_x']< 100]
-                            playercarry = playercarry.loc[playercarry['end_x'] < 99.5]
-                    
-                            playercarry['y_diff'] = playercarry['y'] - playercarry['end_y']
-                            playercarry = playercarry.loc[playercarry['y_diff']>-25]
-                            playercarry = playercarry.loc[playercarry['y_diff']<25]
-                            playercarry = playercarry[~(((playercarry['x'] == 0) & (playercarry['end_x'] == 0)) | ((playercarry['y'] == 0) & (playercarry['end_y'] == 0)))]
-                    
-                            #teamname = anderson.iloc[0]['team_name']
-                            teamlogoid = teamdata.loc[teamdata['name'] == teamname, 'id'].values[0]
-                            opponentname2 = teamdata.loc[teamdata['name'] != teamname, 'name'].values[0]
-                    
-                            URL = f"https://omo.akamai.opta.net/image.php?h=www.scoresway.com&sport=football&entity=team&description=badges&dimensions=150&id={teamlogoid}"
-                            # EFFIONG https://cdn5.wyscout.com/photos/players/public/g144828_100x130.png
-                            teamimage = Image.open(urlopen(URL))
-                            from PIL import Image
-                    
-                            wtaimaged = Image.open("wtatransnew.png")
-                            from matplotlib.offsetbox import OffsetImage, AnnotationBbox
-                            import matplotlib.pyplot as plt
-                            import numpy as np
-                            from scipy.stats import gaussian_kde
-                            from scipy.spatial import ConvexHull
-                    
-                            # Create a figure with three subplots side by side
-                            fig, axes = plt.subplots(1, 3, figsize=(24, 8.25), facecolor=BackgroundColor)  # Adjust the figsize as needed
-                            plt.subplots_adjust(wspace=-0.5)
-                    
-                            # Define the pitch dimensions and other options
-                            pitch_arrows = VerticalPitch(pitch_type='opta', pitch_color=PitchColor, line_color=PitchLineColor)
-                            pitch_bins = VerticalPitch(pitch_type='opta', pitch_color=PitchColor, line_color=PitchLineColor)
-                            pitch_third = VerticalPitch(pitch_type='opta', pitch_color=PitchColor, line_color=PitchLineColor)  # New pitch instance
-                    
-                            # Draw the first pitch with comet-like lines
-                            pitch_arrows.draw(ax=axes[0], figsize=(8, 8.25), constrained_layout=True, tight_layout=False)  # Adjust figsize if needed
-                            axes[0].set_title(f'{playerrequest} - Passes & Carries', fontproperties=title_font, color=TextColor)
-                    
-                            # Plot comet-like lines on the first pitch subplot (axes[0])
-                            def plot_comet_line(ax, x_start, y_start, x_end, y_end, color='green', num_segments=20):
-                                dx = (x_end - x_start) / num_segments
-                                dy = (y_end - y_start) / num_segments
-                                alphas = np.linspace(1, 0, num_segments)
-                                for i in range(num_segments):
-                                    ax.plot([x_start + i*dx, x_start + (i+1)*dx], 
-                                            [y_start + i*dy, y_start + (i+1)*dy], 
-                                            color=color, alpha=alphas[i])
-                    
-                            # Plot comet-like lines
-                            plot_comet_line(axes[0], prf3comp.end_y, prf3comp.end_x,
-                                            prf3comp.y, prf3comp.x, color='green', num_segments=20)
-                    
-                            plot_comet_line(axes[0], prf3incomp.end_y, prf3incomp.end_x,
-                                            prf3incomp.y, prf3incomp.x, color='red', num_segments=20)
-                    
-                            plot_comet_line(axes[0], shotassist.end_y, shotassist.end_x,
-                                            shotassist.y, shotassist.x, color='orange', num_segments=20)
-                    
-                            plot_comet_line(axes[0], playercarry.end_y, playercarry.end_x,
-                                            playercarry.y, playercarry.x, color='purple', num_segments=20)
-                    
-                            def plot_comet_line2(ax, x_start, y_start, x_end, y_end, color='blue', num_segments=10, linewidth=1.0):
-                                dx = (x_end - x_start) / num_segments
-                                dy = (y_end - y_start) / num_segments
-                                alphas = np.linspace(1, 0, num_segments)
-                                for i in range(num_segments):
-                                    ax.plot([x_start + i*dx, x_start + (i+1)*dx], 
-                                            [y_start + i*dy, y_start + (i+1)*dy], 
-                                            color=color, alpha=alphas[i], linewidth=2)
-                    
-                            plot_comet_line2(axes[0], goalassist.end_y, goalassist.end_x,
-                                            goalassist.y, goalassist.x, color='blue', num_segments=10)
-                    
-                            # Draw the second pitch on the second subplot
-                            pitch_bins.draw(ax=axes[1], figsize=(8, 8.25), constrained_layout=True, tight_layout=False)  # Adjust figsize if needed
-                            axes[1].set_title(f'{playerrequest} - Touch Map', fontproperties=title_font, color=TextColor)
-                    
-                    
-                            # Plotting small round dots for each row in the DataFrame on the second pitch subplot (axes[1])
-                            for index, row in playertouchmap.iterrows():
-                                x = row['y']  # Assuming 'y' is the column name for x-coordinate
-                                y = row['x']  # Assuming 'x' is the column name for y-coordinate
-                                axes[1].plot(x, y, marker='o', markeredgecolor=BackgroundColor, markerfacecolor='none', markersize=5)  # Adjust marker size, color, and transparency as needed
-                    
-                            x_coords = playertouchmap['y']  # Assuming 'y' is the column name for x-coordinate
-                            y_coords = playertouchmap['x']  # Assuming 'x' is the column name for y-coordinate
-                    
-                            # Combining x and y coordinates into a single array
-                            points = np.column_stack((x_coords, y_coords))
-                    
-                            # Perform kernel density estimation
-                            #kde = gaussian_kde(points.T)
-                    
-                            # Evaluate the KDE on a grid
-                            #x_grid, y_grid = np.meshgrid(np.linspace(0, 120, 100), np.linspace(0, 80, 100))
-                            #density = kde(np.vstack([x_grid.ravel(), y_grid.ravel()]))
-                    
-                            # Find the point with the highest density
-                            #max_density_index = np.argmax(density)
-                            #max_density_x = x_grid.ravel()[max_density_index]
-                            #max_density_y = y_grid.ravel()[max_density_index]
-                    
-                            # Define a radius around the point with the highest density
-                            radius = 20  # Adjust as needed
-                    
-                            # Filter points within the radius
-                            #points_within_radius = points[((points[:, 0] - max_density_x) ** 2 + (points[:, 1] - max_density_y) ** 2) < radius ** 2]
-                    
-                            # Compute convex hull around points within the radius
-                            #hull = ConvexHull(points_within_radius)
-                    
-                            # Plotting the convex hull on the second pitch subplot (axes[1])
-                            #x_hull = points_within_radius[hull.vertices, 0]
-                            #y_hull = points_within_radius[hull.vertices, 1]
-                    
-                            #axes[1].fill(x_hull, y_hull, color=BackgroundColor, alpha=0.25, edgecolor=BackgroundColor)
-                    
-                            # Draw the third pitch on the third subplot
-                            pitch_third.draw(ax=axes[2], figsize=(8, 8.25), constrained_layout=True, tight_layout=False)  # Adjust figsize if needed
-                            axes[2].set_title(f'{playerrequest} - Event Map', fontproperties=title_font, color=TextColor)  # Add a suitable title
-                    
-                            scatter1 = pitch_third.scatter(tacklet.x, tacklet.y, ax=axes[2], facecolor='green', edgecolor='green', marker='>', label='Tackle', s=40)
-                            scatter2 = pitch_third.scatter(tacklef.x, tacklef.y, ax=axes[2], facecolor='red', edgecolor='red',marker='>', s=40)
-                            #scatter15 = pitch_third.scatter(foulsl.x, foulsl.y, ax=axes[2], facecolor='red', edgecolor='red',marker='>', s=40)
-                            scatter3 = pitch_third.scatter(aerialt.x, aerialt.y, ax=axes[2], facecolor='green',edgecolor='green', marker='s', label='Aerial', s=40)
-                            scatter4 = pitch_third.scatter(aerialf.x, aerialf.y, ax=axes[2], facecolor='red',edgecolor='red', marker='s', s=40)
-                            scatter5 = pitch_third.scatter(shotblocked.x, shotblocked.y, ax=axes[2], facecolor='green',edgecolor='green', marker='p', label='Attempts Blocked', s=40)
-                            scatter6 = pitch_third.scatter(ballrec.x, ballrec.y, ax=axes[2], facecolor='green',edgecolor='green', marker='d', label='Ball Recoveries', s=40)
-                            scatter7 = pitch_third.scatter(clearance.x, clearance.y, ax=axes[2], facecolor='green',edgecolor='green', marker='^', label='Clearance', s=40)
-                            scatter8 = pitch_third.scatter(takeont.x, takeont.y, ax=axes[2], facecolor='green',edgecolor='green', marker='P', label='Take On', s=40)
-                            scatter9 = pitch_third.scatter(takeonf.x, takeonf.y, ax=axes[2], facecolor='red',edgecolor='red', marker='P', s=40)
-                            scatter10 = pitch_third.scatter(disposs.x, disposs.y, ax=axes[2], facecolor='red',edgecolor='red', marker='x', s=40, label = 'Dispossesed')
-                            #scatter11 = pitch_third.scatter(shotblock.x, shotblock.y, ax=axes[2], facecolor='yellow',edgecolor='yellow', marker='o', s=40, label = 'Shot Blocked')
-                            scatter12 = pitch_third.scatter(shotoff.x, shotoff.y, ax=axes[2], facecolor='red', marker='o',edgecolor='red', label='Shot Off Target', s=40)
-                            scatter13 = pitch_third.scatter(shoton.x, shoton.y, ax=axes[2], facecolor='green', marker='o',edgecolor='green', label='Shot On Target', s=40)
-                            scatter14 = pitch_third.scatter(shotgoal.x, shotgoal.y, ax=axes[2], facecolor='green', marker='*',edgecolor='green', label='Goal', s=100)
-                            scatter15 = pitch_third.scatter(fouls.x, fouls.y, ax=axes[2], facecolor='red', marker='>',edgecolor='red',s=40)
-                    
-                            # Add legend
-                            legend = axes[2].legend(handles=[scatter1, scatter3, scatter5, scatter6,
-                                                             scatter7, scatter8, #scatter11, 
-                                                             scatter10,
-                                                             scatter13, scatter14
-                                                            ], 
-                                                             loc='upper center', bbox_to_anchor=(0.5, -0.02), ncol=2, facecolor='silver', frameon=False,labelcolor =TextColor)
-                            # Legend for the first subplot (axes[0])
-                            # Add text under the first pitch subplot (axes[0])
-                    
-                            #axes[0].text(91.65, -5, 'Completed Pass', ha='center', fontsize=9, color='green')
-                            #axes[0].text(62, -5, 'Incompleted Pass', ha='center', fontsize=9, color='red')
-                            #axes[0].text(37, -5, 'Shot Assist', ha='center', fontsize=9, color='orange')
-                            #axes[0].text(21, -5, 'Assist', ha='center', fontsize=9, color='blue')
-                            #axes[0].text(5, -5, 'Ball Carry', ha='center', fontsize=9, color='#f4ffb5')
-                            from matplotlib.lines import Line2D
-                    
-                            legend_labels = ['Completed Pass', 'Incompleted Pass', 'Shot Assist', 'Assist', 'Ball Carry']
-                            legend_colors = ['green', 'red', 'orange', 'blue', 'purple']
-                            
-                            # Create Line2D handles for legend
-                            legend_lines = [Line2D([0], [0], color=color, linewidth=3) for color in legend_colors]
-                            
-                            # Add legend under pitch 1
-                            axes[0].legend(legend_lines, legend_labels,
-                                           loc='upper center',
-                                           bbox_to_anchor=(0.22, -0.02),  # Adjust vertical position as needed
-                                           ncol=1,
-                                           facecolor=BackgroundColor,
-                                           frameon=False,
-                                           labelcolor=TextColor)
-                    
-                            axes[0].text(50, -5, 'Data from Opta', ha='center', fontsize=9, color=TextColor)
-                            axes[0].text(25, -9, 'Opponent:', ha='center', fontsize=14, color=TextColor)
-                            axes[0].text(25, -13, f'{opponentname2}', ha='center', fontsize=14, color=TextColor, fontweight='bold')
-                    
-                            axes[0].text(25, -19, 'Player Impact Score:', ha='center', fontsize=14, color=TextColor)
-                            axes[0].text(25, -23, f'{player_impact_value} (#{match_rank_value})', ha='center', fontsize=14, color=TextColor, fontweight='bold')
-                    
-                    
-                    
-                            axes[1].text(50, -5, 'All events plotted', ha='center', fontsize=9, color=TextColor)
-                    
-                            axes[2].text(50, -5, 'Green shows successful action, red shows unsuccessful', ha='center', fontsize=9, color=TextColor)
-                    
-                            #ax_image = add_image(playerimage, fig, left=0.4225, bottom=-0.04, width=0.04,
-                            #                    alpha=1, interpolation='hanning')
-                    
-                            #ax_image = add_image(playerimage, fig, left=0.45, bottom=-0.045, width=0.03,
-                            #                     alpha=1, interpolation='hanning')
-                            ax_image = add_image(teamimage, fig, left=0.5375, bottom=-0.049, width=0.055,
-                                                 alpha=1, interpolation='hanning')
-                    
-                            ax_image = add_image(wtaimaged, fig, left=0.4375, bottom=-0.029, width=0.055,
-                                                 alpha=1, interpolation='hanning')
-                            #ax_image = add_image(leagueimage, fig, left=0.565, bottom=-0.03175, width=0.03,
-                            #                     alpha=1, interpolation='hanning')
-                            dpi = 600
-                            st.pyplot(fig)
-                            st.success("Analysis Complete!")
-                            plt.close(fig)
-        
-                else:
-                    st.warning("Player data could not be found in the lineup.")
-            else:
-                st.info("Please select a player to view analysis.")
-
-        
 
         
         with tab2:
