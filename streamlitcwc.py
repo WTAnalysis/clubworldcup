@@ -3102,13 +3102,39 @@ if matchlink:
                         legend_handles = []
                         legend_labels  = []
                         from matplotlib.lines import Line2D
+                        import numpy as np
+                        import pandas as pd
+                        
+                        # If you already have this, keep yours (identical behavior is fine)
+                        def mask_count(mask):
+                            if mask is None:
+                                return 0
+                            try:
+                                # works for pd.Series / np.array / list-like booleans
+                                if hasattr(mask, "fillna"):
+                                    mask = mask.fillna(False)
+                                mask = np.asarray(mask, dtype=bool)
+                                return int(mask.sum())
+                            except Exception:
+                                return 0
+                        
+                        def has_any(mask):
+                            return mask_count(mask) > 0
+                        
+                        # Look up variables from BOTH local and global scope so nothing is "missing"
+                        _scope = {}
+                        _scope.update(globals())
+                        _scope.update(locals())
+                        
+                        def getmask(name):
+                            return _scope.get(name, None)
                         
                         legend_items = []
                         
                         def add_line(color, label, lw=3):
                             legend_items.append((Line2D([0], [0], color=color, linewidth=lw), label))
                         
-                        def add_marker(marker, face, edge=None, size=8, label=''):
+                        def add_marker(marker, face, label, edge=None, size=8):
                             if edge is None:
                                 edge = face
                             legend_items.append((
@@ -3118,60 +3144,40 @@ if matchlink:
                                 label
                             ))
                         
-                        # -- Passes (always shown) --
+                        def maybe_add_marker(mask_name, marker, face, label, *, show=True, edge=None, size=8):
+                            m = getmask(mask_name)
+                            if show and has_any(m):
+                                add_marker(marker, face, label, edge=edge, size=size)
+                        
+                        def maybe_add_line(mask_name, color, label, *, show=True, lw=3):
+                            m = getmask(mask_name)
+                            if show and has_any(m):
+                                add_line(color, label, lw=lw)
+                        
+                        # --- Always show pass proxies (these do not depend on masks) ---
                         add_line('green',  'Completed Pass')
                         add_line('red',    'Incompleted Pass')
                         add_line('orange', 'Shot Assist')
                         add_line('blue',   'Assist')
-                        # NOTE: no purple line here. We'll add Carry only if it's shown.
                         
-                        # -- Actions (conditionally) --
-                        if player_choice != "— Select —":
-                            if show_carries and has_carries:
-                                add_line('purple', 'Carry')
+                        # --- Conditionally show actions based on the SAME masks you used to plot ---
+                        # (Rename mask_* here if your variable names differ.)
+                        maybe_add_line   ('mask_carries',       'purple', 'Carry',            show=show_carries)
+                        maybe_add_marker ('mask_tackles',       '>',  'green',  'Tackles',    show=show_tackles)
+                        maybe_add_marker ('mask_aerials',       's',  'green',  'Aerials',    show=show_aerials)
+                        maybe_add_marker ('mask_blocks',        'p',  'green',  'Blocks',     show=show_blocks)
+                        maybe_add_marker ('mask_ballrec',       'd',  'green',  'Ball Recoveries', show=show_ballrec)
+                        maybe_add_marker ('mask_clearances',    '^',  'green',  'Clearances', show=show_clearances)
+                        maybe_add_marker ('mask_interceptions', 'H',  'green',  'Interceptions', show=show_interceptions)
+                        maybe_add_marker ('mask_dribbles',      'P',  'green',  'Dribbles',   show=show_dribbles)
+                        maybe_add_marker ('mask_dispossessed',  'x',  'red',    'Dispossessed', show=show_dispossessed)
+                        maybe_add_marker ('mask_shot_off',      'o',  'red',    'Shots Off Target', show=show_shot_off)
+                        maybe_add_marker ('mask_shot_blocked',  'o',  'yellow', 'Shots Blocked',    show=show_shot_blocked, edge='yellow')
+                        maybe_add_marker ('mask_shot_on',       'o',  'green',  'Shots On Target',  show=show_shot_on)
+                        maybe_add_marker ('mask_goals',         '*',  'green',  'Goals',      show=show_goals, edge='green', size=12)
                         
-                            if show_tackles and has_tackles:
-                                add_marker('>', 'green', label='Tackles')
-                        
-                            if show_aerials and has_aerials:
-                                add_marker('s', 'green', label='Aerials')
-                        
-                            if show_blocks and has_blocks:
-                                add_marker('p', 'green', label='Blocks')
-                        
-                            if show_ballrec and has_ballrec:
-                                add_marker('d', 'green', label='Ball Recoveries')
-                        
-                            if show_clearances and has_clearances:
-                                add_marker('^', 'green', label='Clearances')
-                        
-                            if show_interceptions and has_interceptions:
-                                add_marker('H', 'green', label='Interceptions')
-                        
-                            if show_dribbles and has_dribbles:
-                                add_marker('P', 'green', label='Dribbles')
-                        
-                            if show_dispossessed and has_dispossessed:
-                                add_marker('x', 'red', label='Dispossessed')
-                        
-                            if show_shot_off and has_shot_off:
-                                add_marker('o', 'red', label='Shots Off Target')
-                        
-                            if show_shot_blocked and has_shot_blocked:
-                                add_marker('o', 'yellow', edge='yellow', label='Shots Blocked')
-                        
-                            if show_shot_on and has_shot_on:
-                                add_marker('o', 'green', label='Shots On Target')
-                        
-                            if show_goals and has_goals:
-                                add_marker('*', 'green', edge='green', size=12, label='Goals')
-                        
-                        # -- Build legend safely --
-                        if legend_items:
-                            handles, labels = zip(*legend_items)
-                        else:
-                            handles, labels = [], []
-                        
+                        # --- Build and draw the legend ---
+                        handles, labels = zip(*legend_items) if legend_items else ([], [])
                         leg = ax.legend(
                             handles, labels,
                             loc='center left',
@@ -3180,13 +3186,12 @@ if matchlink:
                             ncol=1,
                         )
                         
-                        # Optional: match theme text color
+                        # Optional: match your theme text color if you have TextColor defined
                         try:
                             for txt in leg.get_texts():
                                 txt.set_color(TextColor)
                         except Exception:
-                            pass
-                # render at natural size
+                            pass                # render at natural size
                 buf = io.BytesIO()
                 fig.savefig(buf, format="png", dpi=110, bbox_inches="tight")
                 buf.seek(0)
