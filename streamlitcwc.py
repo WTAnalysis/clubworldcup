@@ -2727,9 +2727,12 @@ if matchlink:
                 
                     playercomp = passes[passes[outcome_col].eq("Successful")] if outcome_col else passes.iloc[0:0]
                     playerincomp = passes[passes[outcome_col].eq("Unsuccessful")] if outcome_col else passes.iloc[0:0]
-                    playersa = passes[is_true(passes[keypass_col])] if keypass_col in passes.columns else passes.iloc[0:0]
-                    playera = passes[is_true(passes[assist_col])] if assist_col in passes.columns else passes.iloc[0:0]
-                
+                    #playersa = passes[is_true(passes[keypass_col])] if keypass_col in passes.columns else passes.iloc[0:0]
+                    #playera = passes[is_true(passes[assist_col])] if assist_col in passes.columns else passes.iloc[0:0]
+                    playersa = passes.loc[passes['keyPass']==1]
+                    playersa = playersa.loc[playersa['typeId']=='Pass']
+                    playera = passes.loc[passes['assist']==1]
+                    playera = playera.loc[playera['typeId']=='Pass']
                     # --- Remove overlaps ---
                     if not playersa.empty:
                         playercomp = playercomp[~playercomp["id"].isin(playersa["id"])]
