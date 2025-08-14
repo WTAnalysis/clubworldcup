@@ -2658,26 +2658,30 @@ if matchlink:
         
                         # -------- tick boxes to control which actions to plot --------
                         st.markdown("**Show on pitch:**")
+                        select_all_actions = st.checkbox("Select All Actions", False, key="select_all_actions")
                         col_ck1, col_ck2 = st.columns(2)
                         with col_ck1:
-                            show_tackles       = st.checkbox("Tackles", False, key="show_tackles")
-                            show_aerials       = st.checkbox("Aerials", False, key="show_aerials")
-                            show_blocks        = st.checkbox("Blocks", False, key="show_blocks")
-                            show_ballrec       = st.checkbox("Ball Recoveries", False, key="show_ballrec")
-                            show_clearances    = st.checkbox("Clearances", False, key="show_clearances")
+                            show_tackles       = st.checkbox("Tackles", value=select_all_actions, key="show_tackles")
+                            show_aerials       = st.checkbox("Aerials", value=select_all_actions, key="show_aerials")
+                            show_blocks        = st.checkbox("Blocks", value=select_all_actions, key="show_blocks")
+                            show_ballrec       = st.checkbox("Ball Recoveries", value=select_all_actions, key="show_ballrec")
+                            show_clearances    = st.checkbox("Clearances", value=select_all_actions, key="show_clearances")
+                            show_interceptions = st.checkbox("Interceptions", value=select_all_actions, key="show_interceptions")
                         with col_ck2:
-                            show_dribbles      = st.checkbox("Dribbles", False, key="show_dribbles")
-                            show_dispossessed  = st.checkbox("Dispossessed", False, key="show_dispos")
-                            show_shot_off      = st.checkbox("Shots Off Target", False, key="show_off")
-                            show_shot_blocked  = st.checkbox("Shots Blocked", False, key="show_blocked")
-                            show_shot_on       = st.checkbox("Shots On Target", False, key="show_on")
-                            show_goals         = st.checkbox("Goals", False, key="show_goals")
+                            show_dribbles      = st.checkbox("Dribbles", value=select_all_actions, key="show_dribbles")
+                            show_dispossessed  = st.checkbox("Dispossessed", value=select_all_actions, key="show_dispos")
+                            show_shot_off      = st.checkbox("Shots Off Target", value=select_all_actions, key="show_off")
+                            show_shot_blocked  = st.checkbox("Shots Blocked", value=select_all_actions, key="show_blocked")
+                            show_shot_on       = st.checkbox("Shots On Target", value=select_all_actions, key="show_on")
+                            show_goals         = st.checkbox("Goals", value=select_all_actions, key="show_goals")
+
                 else:
                     st.caption("Select a player to show their passes.")
                     # defaults if no player chosen (won't be used)
                     show_tackles = show_aerials = show_blocks = show_ballrec = show_clearances = False
                     show_dribbles = show_dispossessed = show_shot_off = show_shot_blocked = show_shot_on = show_goals = False
-        
+                    show_interceptions = False
+
             # ---------------- PLOT (LEFT) ----------------
             with left_col:
                 pitch = VerticalPitch(
@@ -2819,7 +2823,8 @@ if matchlink:
                         m_as_nblk = (is_type("Attempt saved") & ~flag_true(col("shotblocked"))) if is_type("Attempt saved") is not None and col("shotblocked") is not None else None
                         m_goal    =  is_type("Goal")                                           if is_type("Goal")   is not None else None
                         m_foul_u  = (is_type("Foul")         & is_outcome("Unsuccessful"))    if is_type("Foul")   is not None else None
-        
+                        m_intr   =  is_type("Interception")  if is_type("Interception") is not None else None
+
                         # safe scatter helper
                         def plot_mask(mask, facecolor, edgecolor, marker, size):
                             if mask is None:
@@ -2867,7 +2872,8 @@ if matchlink:
                             plot_mask(m_as_nblk, facecolor="green", edgecolor="green", marker="o", size=40)
                         if show_goals:
                             plot_mask(m_goal,   facecolor="green", edgecolor="green", marker="*", size=100)
-        
+                        if show_interceptions:
+                        plot_mask(m_intr, facecolor="green", edgecolor="green", marker="H", size=40)
                         ax_image = add_image(
                             wtaimaged,
                             fig,
@@ -2954,7 +2960,9 @@ if matchlink:
                             if show_clearances:
                                 legend_handles.append(mkr('^', 'green', label='Clearances'))
                                 legend_labels.append('Clearances')
-                        
+                            if show_interceptions:
+                                legend_handles.append(mkr('H', 'green', label='Interceptions'))
+                                legend_labels.append('Interceptions')
                             if show_dribbles:
                                 legend_handles += [mkr('P', 'green', label='Dribbles (S)'),
                                                    mkr('P', 'red',   label='Dribbles (U)')]
