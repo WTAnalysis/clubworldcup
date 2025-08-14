@@ -2125,10 +2125,31 @@ if matchlink:
 
         })
         
-        tab1, tab2, tab3, tab4 = st.tabs(["Overview", "Team Stats", "Match Events", "Player Actions"])
+        tab1, tab2, tab3, tab4 = st.tabs(["Player Overview", "Match Momentum", "Average Positions", "Custom Player Actions"])
 
         
+        # --- Build a safe players_list for selectors (Overview + others) ---
+        def _safe_series(frame, col):
+            try:
+                if frame is not None and col in frame.columns:
+                    return frame[col].dropna().astype(str)
+            except Exception:
+                pass
+            return pd.Series(dtype=str)
         
+        players_list = (
+            pd.concat(
+                [
+                    _safe_series(df, "playerName"),
+                    _safe_series(starting_lineups, "player_name"),
+                ],
+                ignore_index=True,
+            )
+            .dropna()
+            .drop_duplicates()
+            .sort_values()
+            .tolist()
+        )
 
         # Output the result
         print(f"Color properties for {league}: {league_colors_properties}")
@@ -2138,22 +2159,44 @@ if matchlink:
         
         # Player dropdown
         with tab1:
-            st.write("Player Visuals")
-            # include existing code or visuals
-        playername = st.selectbox("Select Player Name", options=player_options)
-
-        # Only show analysis if a valid player is selected
-        if playername != "-- Select a player --":
-            anderson = starting_lineups[starting_lineups["player_name"] == playername]
+            import matplotlib.pyplot as plt
+            plt.close('all')  # reset any prior figs tied to other tabs
         
-            if not anderson.empty:
-                teamname = anderson.iloc[0]['team_name']
-                # 🧠 Continue with analysis logic
-                st.info(f"{playername} plays for {teamname}")
+            # Build player list safely (use whatever you already have if defined)
+            try:
+                player_options = ["-- Select a player --"] + sorted(
+                    pd.Series(
+                        list(
+                            set(
+                                (df["playerName"].dropna().astype(str).tolist() if "playerName" in df.columns else [])
+                                + (starting_lineups["player_name"].dropna().astype(str).tolist() if "player_name" in starting_lineups.columns else [])
+                            )
+                        )
+                    ).drop_duplicates().tolist()
+                )
+            except Exception:
+                player_options = ["-- Select a player --"]
+        
+            # ▼ Keep the selector INSIDE Tab 1 and give it a unique key
+            playername = st.selectbox("Select Player Name", options=player_options, key="tab1_player_select")
+        
+            if playername != "-- Select a player --":
+                anderson = starting_lineups[starting_lineups["player_name"] == playername] if "player_name" in starting_lineups.columns else pd.DataFrame()
+                if not anderson.empty:
+                    teamname = anderson.iloc[0]['team_name'] if 'team_name' in anderson.columns else "N/A"
+                    st.info(f"{playername} plays for {teamname}")
+        
+                    # ---- Your Tab 1 plotting goes here ----
+                    # fig, axes = plt.subplots(1, 3, figsize=(24, 8.25))
+                    # ... draw mini-pitches / overview ...
+                    # st.pyplot(fig, clear_figure=True)
+                    # plt.close(fig)
+                    # ---------------------------------------
+        
+                else:
+                    st.warning("Player data could not be found in the lineup.")
             else:
-                st.warning("Player data could not be found in the lineup.")
-        else:
-            st.warning("Please select a player to view analysis.")
+                st.info("Please select a player to view analysis.")
 
         TextColor = league_colors_properties["TextColor"]
         BackgroundColor = league_colors_properties["BackgroundColor"]
