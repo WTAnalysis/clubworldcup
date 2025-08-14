@@ -2127,24 +2127,33 @@ if matchlink:
         
         tab1, tab2, tab3, tab4 = st.tabs(["Overview", "Team Stats", "Match Events", "Player Actions"])
 
-        with tab1:
-            import matplotlib.pyplot as plt
-            plt.close('all')
-            player_list = starting_lineups["player_name"].dropna().unique().tolist()
-
-            player_options = ["-- Select a player --"] + sorted(player_list)
-            # ▼▼ this dropdown (and anything it drives) must live in Tab 1
-            player_overview = st.selectbox("Select Player Name", ["-- Select a player --"] + players_list,
-                                           key="tab1_player_select")
         
-            if player_overview != "-- Select a player --":
-                # ... build your 3 mini-pitches here ...
-                fig, axes = plt.subplots(1, 3, figsize=(24, 8.25), facecolor=BackgroundColor)
-                # draw all three
-                st.pyplot(fig, clear_figure=True)
-                plt.close(fig)
+        
+
+        # Output the result
+        print(f"Color properties for {league}: {league_colors_properties}")
+        player_list = starting_lineups["player_name"].dropna().unique().tolist()
+
+        player_options = ["-- Select a player --"] + sorted(player_list)
+        
+        # Player dropdown
+        with tab1:
+            st.write("Player Visuals")
+            # include existing code or visuals
+        playername = st.selectbox("Select Player Name", options=player_options)
+
+        # Only show analysis if a valid player is selected
+        if playername != "-- Select a player --":
+            anderson = starting_lineups[starting_lineups["player_name"] == playername]
+        
+            if not anderson.empty:
+                teamname = anderson.iloc[0]['team_name']
+                # 🧠 Continue with analysis logic
+                st.info(f"{playername} plays for {teamname}")
             else:
-                st.info("Please select a player to view analysis.")
+                st.warning("Player data could not be found in the lineup.")
+        else:
+            st.warning("Please select a player to view analysis.")
 
         TextColor = league_colors_properties["TextColor"]
         BackgroundColor = league_colors_properties["BackgroundColor"]
