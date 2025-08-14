@@ -2525,6 +2525,7 @@ if matchlink:
             ax.add_artist(ab_logo)
                
             st.pyplot(fig)        ## STEP 8 - sendings off
+            plt.close(fig)
 
         with tab3:
             st.header("Average Positions")
@@ -2619,6 +2620,7 @@ if matchlink:
                 # If you want logos here, let me know and I’ll wire them with safe guards.
         
                 st.pyplot(fig)
+                plt.close(fig)
 
         with tab4:
             st.subheader("Player Actions")
