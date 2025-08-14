@@ -157,7 +157,7 @@ if not schedule_df.empty and 'description' in schedule_df.columns:
             match_row = schedule_df[schedule_df['display'] == selected_description]
             if not match_row.empty:
                 matchlink = match_row["id"].values[0]
-                st.info(f"Analyzing match: {selected_description}")
+                st.info(f"Analyzing match: {selected_description} - If error, try again later in the match! If error remains, contact WT_Analysis on Twitter/X")
             else:
                 st.warning("Selected match not found in data.")
         else:
