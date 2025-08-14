@@ -1912,6 +1912,15 @@ if matchlink:
                 "SonarCarry": "blue",
                 "HullColor": "#da9240"
             },
+            "Europa Conference League Qualifiers": {
+                "TextColor": "black",
+                "BackgroundColor": "#da9240",
+                "PitchColor": "#b9b9bb",
+                "PitchLineColor": "black",
+                "SonarPass": "#b9b9bb",
+                "SonarCarry": "blue",
+                "HullColor": "#da9240"
+            },
             "Europa League": {
                 "TextColor": "black",
                 "BackgroundColor": "#da9240",
