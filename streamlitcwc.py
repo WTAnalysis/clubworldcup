@@ -2847,7 +2847,7 @@ if matchlink:
                     bbox = ax.get_position()
                     fig.text(
                         0.5,
-                        bbox.y0 - 0.075,
+                        bbox.y0 - 0.0075,
                         footer_text,
                         ha="center",
                         va="top",
@@ -2944,7 +2944,7 @@ if matchlink:
                         )
                         fig.text(
                         0.735 + 0.225 / 2,   # horizontally center under the image
-                        0.135 - 0.02,        # a bit below the bottom of the image
+                        0.7 - 0.02,        # a bit below the bottom of the image
                         "Data via Opta",
                         ha="center",
                         va="top",
