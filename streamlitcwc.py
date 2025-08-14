@@ -2122,12 +2122,33 @@ if matchlink:
             "SonarPass": "default",
             "SonarCarry": "default",
             "HullColor": "default"
-
         })
-        st.session_state["BackgroundColor"] = league_colors_properties.get("BackgroundColor") or "white"
-        st.session_state["TextColor"]       = league_colors_properties.get("TextColor") or "black"
-        st.session_state["PitchLineColor"]  = league_colors_properties.get("PitchLineColor") or "black"
-        st.session_state["PitchColor"]      = league_colors_properties.get("PitchColor") or "white"
+        
+        # Define theme with safe fallbacks (treat "" as missing too)
+        def _val(key, default):
+            v = league_colors_properties.get(key)
+            if not v:  # None or ""
+                v = st.session_state.get(key, default)
+            return v or default
+        
+        TextColor       = _val("TextColor", "black")
+        BackgroundColor = _val("BackgroundColor", "white")
+        PitchColor      = _val("PitchColor", "white")
+        PitchLineColor  = _val("PitchLineColor", "black")
+        
+        # (Optional) pick a default font now or don’t store it yet
+        from matplotlib.font_manager import FontProperties
+        title_font = FontProperties(family="Tahoma", size=15)
+        
+        st.session_state.update({
+            "TextColor": TextColor,
+            "BackgroundColor": BackgroundColor,
+            "PitchColor": PitchColor,
+            "PitchLineColor": PitchLineColor,
+            "title_font": title_font,
+        })
+
+        
         tab1, tab2, tab3, tab4 = st.tabs(["Player Overview", "Match Momentum", "Average Positions", "Custom Player Actions"])
 
         
