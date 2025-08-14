@@ -2730,6 +2730,7 @@ if matchlink:
                             show_clearances    = st.checkbox("Clearances", value=select_all_actions, key="show_clearances")
                             show_interceptions = st.checkbox("Interceptions", value=select_all_actions, key="show_interceptions")
                         with col_ck2:
+                            show_carries      = st.checkbox("Carries", value=select_all_actions, key="show_carries")
                             show_dribbles      = st.checkbox("Dribbles", value=select_all_actions, key="show_dribbles")
                             show_dispossessed  = st.checkbox("Dispossessed", value=select_all_actions, key="show_dispos")
                             show_shot_off      = st.checkbox("Shots Off Target", value=select_all_actions, key="show_off")
@@ -2743,6 +2744,7 @@ if matchlink:
                     show_tackles = show_aerials = show_blocks = show_ballrec = show_clearances = False
                     show_dribbles = show_dispossessed = show_shot_off = show_shot_blocked = show_shot_on = show_goals = False
                     show_interceptions = False
+                    show_carries = False
 
             # ---------------- PLOT (LEFT) ----------------
             with left_col:
@@ -2818,10 +2820,10 @@ if matchlink:
                         plot_comet_line2(ax, playera["end_y"], playera["end_x"],
                                              playera["y"],     playera["x"],
                                              color="blue", num_segments=10, linewidth=2.0)
-                    if not carries.empty:
+                    if show_carries and not carries.empty:
                         plot_comet_line2(ax, carries["end_y"], carries["end_x"],
-                                             carries["y"],     carries["x"],
-                                             color="purple", num_segments=10, linewidth=2.0)
+                                            carries["y"],     carries["x"],
+                                            color="purple", num_segments=10, linewidth=2.0)
                 # title
                 if player_choice != "— Select —":
                     title_text = f"{player_choice} Actions & Passes"
@@ -3093,13 +3095,19 @@ if matchlink:
                                 markerfacecolor=face, markeredgecolor=edge,
                                 label=label
                             )
-                        
+                        has_carries = not carries.empty
+
+# ... existing action legend items ...
+
+                            
                         # -- Actions (include only if checkbox is ticked AND the player actually had any) --
                         if player_choice != "— Select —":
                             if show_tackles and has_tackles:
                                 legend_handles.append(mkr('>', 'green', label='Tackles'))
                                 legend_labels.append('Tackles')
-                        
+                            if show_carries and has_carries:
+                                legend_handles.append(Line2D([0], [0], color='purple', linewidth=3))
+                                legend_labels.append('Carry')
                             if show_aerials and has_aerials:
                                 legend_handles.append(mkr('s', 'green', label='Aerials'))
                                 legend_labels.append('Aerials')
