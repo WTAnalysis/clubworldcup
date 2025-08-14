@@ -2916,13 +2916,24 @@ if matchlink:
                         impact_str = "N/A"
                 
                     # Tighter spacing between separators
+                    def _mt_escape(s: str) -> str:
+                        # escape chars that mathtext treats specially
+                        for ch in r"\^_{}%#&$":
+                            s = s.replace(ch, "\\" + ch)
+                        # preserve spaces inside math mode
+                        return s.replace(" ", r"\ ")
+                    
+                    def _bold_val(v) -> str:
+                        s = _mt_escape(str(v))
+                        return rf"$\mathbf{{{s}}}$"
+                    
                     footer_parts = [
-                        f"Minutes Played: {minutes_played}",
-                        f"Position: {position_val}",
-                        f"Player Impact: {impact_str}",
+                        f"Minutes Played: {_bold_val(minutes_played)}",
+                        f"Position: {_bold_val(position_val)}",
+                        f"Player Impact: {_bold_val(impact_str)}",
                     ]
-                    footer_text = " | ".join(map(str, footer_parts))
-                
+                    footer_text = " | ".join(footer_parts)
+                    
                     bbox = ax.get_position()
                     fig.text(
                         0.5,
@@ -2932,7 +2943,9 @@ if matchlink:
                         va="top",
                         fontproperties=title_font,
                         color=TextColor,
-                    )   
+                        # keep mathtext font aligned with your chosen font if possible
+                        math_fontfamily=getattr(title_font, "get_name", lambda: None)(),
+                    )  
                 # -------- ACTION MARKERS (non-passes), gated by checkboxes --------
                 if player_choice != "— Select —":
                     needed_xy = {"x", "y"}
@@ -3108,7 +3121,7 @@ if matchlink:
                         if player_choice != "— Select —":
                             if show_carries and has_carries:
                                 legend_handles.append(Line2D([0], [0], color='purple', linewidth=3))
-                                legend_labels.append('Carry')
+                                legend_labels.append('Ball Carries')
 # ... existing action legend items ...
 
                             
