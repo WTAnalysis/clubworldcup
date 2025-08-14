@@ -2431,8 +2431,10 @@ if matchlink:
         #                     alpha=1, interpolation='hanning')
         dpi = 600
         st.pyplot(fig)
-
         st.success("Analysis Complete!")
+        plt.close(fig)
+
+        
         with tab2:
             st.write("Match Momentum")
             # e.g. show another dataframe or chart
