@@ -3078,106 +3078,89 @@ if matchlink:
                         legend_labels  = []
                         from matplotlib.lines import Line2D
                         
-                        # -- Passes (always shown) --
-                        legend_handles += [
-                            Line2D([0], [0], color='green',  linewidth=3),
-                            Line2D([0], [0], color='red',    linewidth=3),
-                            Line2D([0], [0], color='orange', linewidth=3),
-                            Line2D([0], [0], color='blue',   linewidth=3),
-                            Line2D([0], [0], color='purple', linewidth=3),
-                        ]
-                        legend_labels += [
-                            'Completed Pass',
-                            'Incompleted Pass',
-                            'Shot Assist',
-                            'Assist',
-                            #'Carry',
-                        ]
+                        legend_items = []
                         
-                        # Helper to add a marker (no line)
-                        def mkr(marker, face, edge=None, size=8, label=''):
+                        def add_line(color, label, lw=3):
+                            legend_items.append((Line2D([0], [0], color=color, linewidth=lw), label))
+                        
+                        def add_marker(marker, face, edge=None, size=8, label=''):
                             if edge is None:
                                 edge = face
-                            return Line2D(
-                                [], [], linestyle='None',
-                                marker=marker, markersize=size,
-                                markerfacecolor=face, markeredgecolor=edge,
-                                label=label
-                            )
-                        has_carries = not carries.empty
-
-# ... existing action legend items ...
-
-                            
-                        # -- Actions (include only if checkbox is ticked AND the player actually had any) --
+                            legend_items.append((
+                                Line2D([], [], linestyle='None',
+                                       marker=marker, markersize=size,
+                                       markerfacecolor=face, markeredgecolor=edge),
+                                label
+                            ))
+                        
+                        # -- Passes (always shown) --
+                        add_line('green',  'Completed Pass')
+                        add_line('red',    'Incompleted Pass')
+                        add_line('orange', 'Shot Assist')
+                        add_line('blue',   'Assist')
+                        # NOTE: no purple line here. We'll add Carry only if it's shown.
+                        
+                        # -- Actions (conditionally) --
                         if player_choice != "— Select —":
                             if show_carries and has_carries:
-                                legend_handles.append(Line2D([0], [0], color='purple', linewidth=3))
-                                legend_labels.append('Carry')
+                                add_line('purple', 'Carry')
+                        
                             if show_tackles and has_tackles:
-                                legend_handles.append(mkr('>', 'green', label='Tackles'))
-                                legend_labels.append('Tackles')
-                       
+                                add_marker('>', 'green', label='Tackles')
+                        
                             if show_aerials and has_aerials:
-                                legend_handles.append(mkr('s', 'green', label='Aerials'))
-                                legend_labels.append('Aerials')
+                                add_marker('s', 'green', label='Aerials')
                         
                             if show_blocks and has_blocks:
-                                legend_handles.append(mkr('p', 'green', label='Blocks'))
-                                legend_labels.append('Blocks')
+                                add_marker('p', 'green', label='Blocks')
                         
                             if show_ballrec and has_ballrec:
-                                legend_handles.append(mkr('d', 'green', label='Ball Recoveries'))
-                                legend_labels.append('Ball Recoveries')
+                                add_marker('d', 'green', label='Ball Recoveries')
                         
                             if show_clearances and has_clearances:
-                                legend_handles.append(mkr('^', 'green', label='Clearances'))
-                                legend_labels.append('Clearances')
+                                add_marker('^', 'green', label='Clearances')
                         
                             if show_interceptions and has_interceptions:
-                                legend_handles.append(mkr('H', 'green', label='Interceptions'))
-                                legend_labels.append('Interceptions')
+                                add_marker('H', 'green', label='Interceptions')
                         
                             if show_dribbles and has_dribbles:
-                                legend_handles.append(mkr('P', 'green', label='Dribbles'))
-                                legend_labels.append('Dribbles')
+                                add_marker('P', 'green', label='Dribbles')
                         
                             if show_dispossessed and has_dispossessed:
-                                legend_handles.append(mkr('x', 'red', label='Dispossessed'))
-                                legend_labels.append('Dispossessed')
+                                add_marker('x', 'red', label='Dispossessed')
                         
                             if show_shot_off and has_shot_off:
-                                legend_handles.append(mkr('o', 'red', label='Shots Off Target'))
-                                legend_labels.append('Shots Off Target')
+                                add_marker('o', 'red', label='Shots Off Target')
                         
                             if show_shot_blocked and has_shot_blocked:
-                                legend_handles.append(mkr('o', 'yellow', edge='yellow', label='Shots Blocked'))
-                                legend_labels.append('Shots Blocked')
+                                add_marker('o', 'yellow', edge='yellow', label='Shots Blocked')
                         
                             if show_shot_on and has_shot_on:
-                                legend_handles.append(mkr('o', 'green', label='Shots On Target'))
-                                legend_labels.append('Shots On Target')
+                                add_marker('o', 'green', label='Shots On Target')
                         
                             if show_goals and has_goals:
-                                legend_handles.append(mkr('*', 'green', edge='green', size=12, label='Goals'))
-                                legend_labels.append('Goals')
+                                add_marker('*', 'green', edge='green', size=12, label='Goals')
                         
-                        # Draw legend to the RIGHT of the pitch and include only what we built
+                        # -- Build legend safely --
+                        if legend_items:
+                            handles, labels = zip(*legend_items)
+                        else:
+                            handles, labels = [], []
+                        
                         leg = ax.legend(
-                            legend_handles, legend_labels,
+                            handles, labels,
                             loc='center left',
                             bbox_to_anchor=(1.02, 0.5),
                             frameon=False,
                             ncol=1,
                         )
                         
-                        # Match theme text color (if defined)
+                        # Optional: match theme text color
                         try:
                             for txt in leg.get_texts():
                                 txt.set_color(TextColor)
                         except Exception:
                             pass
-        
                 # render at natural size
                 buf = io.BytesIO()
                 fig.savefig(buf, format="png", dpi=110, bbox_inches="tight")
