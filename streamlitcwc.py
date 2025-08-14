@@ -2903,7 +2903,7 @@ if matchlink:
                                 add_image(
                                     teamimage,
                                     fig,
-                                    left=0.735, bottom=0.135, width=0.225,
+                                    left=0.735, bottom=0.135, width=0.2,
                                     alpha=1, interpolation='hanning'
                                 )
                             except Exception as e:
@@ -2938,17 +2938,16 @@ if matchlink:
                         
                         # -- Actions (only include if the checkbox is ticked) --
                         if player_choice != "— Select —":
-                            # these booleans come from your right-column checkboxes
+                            # For actions with S/U variants: show a single green shape in legend
                             if show_tackles:
-                                legend_handles += [mkr('>', 'green', label='Tackles (S)'),
-                                                   mkr('>', 'red',   label='Tackles (U)')]
-                                legend_labels  += ['Tackles (S)', 'Tackles (U)']
+                                legend_handles.append(mkr('>', 'green', label='Tackles'))
+                                legend_labels.append('Tackles')
                         
                             if show_aerials:
-                                legend_handles += [mkr('s', 'green', label='Aerials (S)'),
-                                                   mkr('s', 'red',   label='Aerials (U)')]
-                                legend_labels  += ['Aerials (S)', 'Aerials (U)']
+                                legend_handles.append(mkr('s', 'green', label='Aerials'))
+                                legend_labels.append('Aerials')
                         
+                            # Blocks (keeper saves) – unchanged
                             if show_blocks:
                                 legend_handles.append(mkr('p', 'green', label='Blocks'))
                                 legend_labels.append('Blocks (Save)')
@@ -2960,18 +2959,23 @@ if matchlink:
                             if show_clearances:
                                 legend_handles.append(mkr('^', 'green', label='Clearances'))
                                 legend_labels.append('Clearances')
+                        
+                            # Interceptions (your new item) – single green marker
                             if show_interceptions:
                                 legend_handles.append(mkr('H', 'green', label='Interceptions'))
                                 legend_labels.append('Interceptions')
-                            if show_dribbles:
-                                legend_handles += [mkr('P', 'green', label='Dribbles (S)'),
-                                                   mkr('P', 'red',   label='Dribbles (U)')]
-                                legend_labels  += ['Dribbles (S)', 'Dribbles (U)']
                         
+                            # Dribbles have S/U but legend shows one green symbol
+                            if show_dribbles:
+                                legend_handles.append(mkr('P', 'green', label='Dribbles'))
+                                legend_labels.append('Dribbles')
+                        
+                            # Dispossessed – unchanged (always “unsuccessful” for the player)
                             if show_dispossessed:
                                 legend_handles.append(mkr('x', 'red', label='Dispossessed'))
                                 legend_labels.append('Dispossessed')
                         
+                            # Shots – leave as-is per your instruction
                             if show_shot_off:
                                 legend_handles.append(mkr('o', 'red', label='Shots Off Target'))
                                 legend_labels.append('Shots Off Target')
@@ -2987,7 +2991,7 @@ if matchlink:
                             if show_goals:
                                 legend_handles.append(mkr('*', 'green', edge='green', size=12, label='Goals'))
                                 legend_labels.append('Goals')
-                        
+                                                
                         # Draw legend to the RIGHT of the pitch and include only what we built
                         leg = ax.legend(
                             legend_handles, legend_labels,
