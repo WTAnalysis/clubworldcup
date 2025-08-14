@@ -3045,7 +3045,8 @@ if matchlink:
                                 st.warning(f"Could not load team logo: {e}")
                         legend_handles = []
                         legend_labels  = []
-                        
+                        from matplotlib.lines import Line2D
+
                         # -- Passes (always shown) --
                         legend_handles += [
                             Line2D([0], [0], color='green',  linewidth=3),
