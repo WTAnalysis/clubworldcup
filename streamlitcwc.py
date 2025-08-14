@@ -2130,7 +2130,9 @@ if matchlink:
         with tab1:
             import matplotlib.pyplot as plt
             plt.close('all')
-        
+            player_list = starting_lineups["player_name"].dropna().unique().tolist()
+
+            player_options = ["-- Select a player --"] + sorted(player_list)
             # ▼▼ this dropdown (and anything it drives) must live in Tab 1
             player_overview = st.selectbox("Select Player Name", ["-- Select a player --"] + players_list,
                                            key="tab1_player_select")
