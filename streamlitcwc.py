@@ -2501,72 +2501,109 @@ if matchlink:
 
         
         with tab2:
-            st.write("Match Momentum")
-            # e.g. show another dataframe or chart
-        with tab2:
             st.header("Match Momentum Visual")
         
-            import matplotlib.pyplot as plt
             import numpy as np
+            import matplotlib.pyplot as plt
             from matplotlib.offsetbox import OffsetImage, AnnotationBbox
             from scipy.interpolate import make_interp_spline
             from urllib.request import urlopen
             from PIL import Image
         
-            # Prepare pivot dataframe
-            pivot_df = df.pivot_table(index='timeMin', columns='team_name', values='xT_value', aggfunc='sum')
-            pivot_df.reset_index(inplace=True)
+            # ---------- data prep ----------
+            pivot_df = df.pivot_table(index='timeMin', columns='team_name',
+                                      values='xT_value', aggfunc='sum').reset_index()
             for column in pivot_df.columns:
                 pivot_df[column].fillna(0, inplace=True)
             pivot_df['score_difference'] = pivot_df[teamname] - pivot_df[opponentname]
-            pivot_df['rolling_avg_score_difference'] = pivot_df['score_difference'].rolling(window=5, min_periods=1).mean()
+            pivot_df['rolling_avg_score_difference'] = (
+                pivot_df['score_difference'].rolling(window=5, min_periods=1).mean()
+            )
         
-            # Prepare goal times
             goals = df[df['typeId'].isin(['Goal', 'Own Goal'])]
             goal_time = goals['timeMin']
         
-            # Prepare halftime and fulltime
             halftime = df[df['periodId'] == 1]['timeMin'].max()
-            fulltime = df[df['periodId'] == 2]['timeMin'].max()
+            fulltime  = df[df['periodId'] == 2]['timeMin'].max()
         
-            # Load team logos and football image (football.png must be in repo directory)
+            # ---------- images ----------
             hometeamlogo = teamdata.iloc[0, 0]
             awayteamlogo = teamdata.iloc[1, 0]
             HOMEURL = f"https://omo.akamai.opta.net/image.php?h=www.scoresway.com&sport=football&entity=team&description=badges&dimensions=150&id={hometeamlogo}"
             AWAYURL = f"https://omo.akamai.opta.net/image.php?h=www.scoresway.com&sport=football&entity=team&description=badges&dimensions=150&id={awayteamlogo}"
-            homeimage = Image.open(urlopen(HOMEURL))
-            awayimage = Image.open(urlopen(AWAYURL))
+        
+            # Ensure RGBA so numpy arrays are (H, W, 4)
+            homeimage = Image.open(urlopen(HOMEURL)).convert("RGBA")
+            awayimage = Image.open(urlopen(AWAYURL)).convert("RGBA")
             footballimage = Image.open('football.png')
         
-            # Create plot
-            fig, ax = plt.subplots(figsize=(10,6))
+            # ---------- watermark helper ----------
+            def prepare_watermark(pil_img, *, opacity=0.14, bg_threshold=0.985, min_keep_ratio=0.15):
+                """
+                Return RGBA ndarray with a single, scaled alpha channel.
+                - If the image already has alpha: just scale the alpha.
+                - If no alpha: try to remove near-white background; if that removes too much,
+                  fall back to keeping all pixels and just apply opacity.
+                """
+                arr = np.array(pil_img).astype(np.float32) / 255.0
+        
+                if arr.ndim == 2:  # grayscale to RGB
+                    arr = np.repeat(arr[..., None], 3, axis=-1)
+        
+                if arr.shape[-1] == 4:
+                    # scale existing alpha
+                    arr[..., 3] *= opacity
+                    return arr
+        
+                # add alpha and try to drop near-white
+                alpha = np.ones(arr.shape[:2], dtype=np.float32)
+        
+                rgb = arr[..., :3]
+                bright = rgb.max(axis=-1)
+                spread = rgb.ptp(axis=-1)  # max-min across channels
+                near_white = (bright > bg_threshold) & (spread < 0.06)
+        
+                removed_ratio = near_white.mean()
+                if 1.0 - removed_ratio < min_keep_ratio:
+                    # too destructive; keep all pixels
+                    alpha[:] = 1.0
+                else:
+                    alpha[near_white] = 0.0
+        
+                alpha *= opacity
+                return np.dstack([rgb, alpha])
+        
+            # ---------- plot ----------
+            fig, ax = plt.subplots(figsize=(10, 6))
             fig.set_facecolor(BackgroundColor)
-
             ax.set_facecolor(PitchColor)
+        
             x = pivot_df['timeMin']
             y = pivot_df['rolling_avg_score_difference']
             spl = make_interp_spline(x, y, k=3)
             x_smooth = np.linspace(x.min(), x.max(), 300)
             y_smooth = spl(x_smooth)
         
-            ax.fill_between(x_smooth, y_smooth, where=(y_smooth >= 0), interpolate=True, color=homecolor1, alpha=0.45, edgecolor=homecolor2)
-            ax.fill_between(x_smooth, y_smooth, where=(y_smooth < 0), interpolate=True, color=awaycolor1, alpha=0.45, edgecolor=awaycolor2)
+            ax.fill_between(
+                x_smooth, y_smooth, where=(y_smooth >= 0), interpolate=True,
+                color=homecolor1, alpha=0.45, edgecolor=homecolor2
+            )
+            ax.fill_between(
+                x_smooth, y_smooth, where=(y_smooth < 0), interpolate=True,
+                color=awaycolor1, alpha=0.45, edgecolor=awaycolor2
+            )
         
-            # Add football icons for goals
             for goal_min in goal_time:
                 closest_idx = (pivot_df['timeMin'] - goal_min).abs().idxmin()
                 y_value = pivot_df.loc[closest_idx, 'rolling_avg_score_difference']
                 img_y_pos = y_value + 0.115 if y_value >= 0 else y_value - 0.115
                 imagebox_goal = OffsetImage(footballimage, zoom=0.035, alpha=0.75)
-                ab_goal = AnnotationBbox(imagebox_goal, (goal_min, img_y_pos), frameon=False)
-                ax.add_artist(ab_goal)
+                ax.add_artist(AnnotationBbox(imagebox_goal, (goal_min, img_y_pos), frameon=False))
         
-            # Halftime and fulltime lines
             if pd.notna(halftime):
                 ax.axvline(x=halftime, color='green', linestyle='--', linewidth=1)
             if pd.notna(fulltime) and fulltime >= 90:
                 ax.axvline(x=fulltime, color='green', linestyle='--', linewidth=1)
-
         
             ax.set_title(f'{teamname} v {opponentname} Match Momentum', color=TextColor)
             ax.set_xlabel('Minute')
@@ -2575,21 +2612,24 @@ if matchlink:
             ax.set_yticks([])
             ax.axhline(y=0, color='black', linewidth=0.8)
             ax.grid(True, which='both', linestyle='--', linewidth=0.5, color='gray')
+            ax.tick_params(colors=TextColor)
+            ax.xaxis.label.set_color(TextColor)
+            ax.yaxis.label.set_color(TextColor)
+            # ---------- logos (clean & add) ----------
+            home_img_wm = prepare_watermark(homeimage, opacity=0.12)
+            away_img_wm = prepare_watermark(awayimage, opacity=0.12)
         
-            # Add team logos
-            imagebox_home = OffsetImage(homeimage, zoom=0.5, alpha=0.1)
-            ab_home = AnnotationBbox(imagebox_home, (5, 1), frameon=False)
-            ax.add_artist(ab_home)
+            ax.add_artist(AnnotationBbox(OffsetImage(home_img_wm, zoom=0.5), (5, 1),
+                                         frameon=False, zorder=0))
+            ax.add_artist(AnnotationBbox(OffsetImage(away_img_wm, zoom=0.5),
+                                         (pivot_df['timeMin'].max() - 5, -1),
+                                         frameon=False, zorder=0))
         
-            imagebox_away = OffsetImage(awayimage, zoom=0.5, alpha=0.1)
-            ab_away = AnnotationBbox(imagebox_away, (pivot_df['timeMin'].max()-5, -1), frameon=False)
-            ax.add_artist(ab_away)
-            
-            imagebox_logo = OffsetImage(wtaimaged, zoom=0.1, alpha=0.25)
-            ab_logo = AnnotationBbox(imagebox_logo, (5, -1), frameon=False)
-            ax.add_artist(ab_logo)
-               
-            st.pyplot(fig)        ## STEP 8 - sendings off
+            # WTA logo (keep as you had it)
+            ax.add_artist(AnnotationBbox(OffsetImage(wtaimaged, zoom=0.1, alpha=0.25),
+                                         (5, -1), frameon=False, zorder=0))
+        
+            st.pyplot(fig)
             plt.close(fig)
 
         with tab3:
