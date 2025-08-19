@@ -1820,7 +1820,7 @@ if matchlink:
                 "PitchLineColor": "black",
                 "SonarPass": "#d4d6e3",
                 "SonarCarry": "red",
-                "HullColor": "red"
+                "HullColor": "darkblue"
             },
             "Championship": {
                 "TextColor": "black",
@@ -1829,7 +1829,7 @@ if matchlink:
                 "PitchLineColor": "black",
                 "SonarPass": "#d4d6e3",
                 "SonarCarry": "red",
-                "HullColor": "red"
+                "HullColor": "darkblue"
             },
             "Serie A": {
                 "TextColor": "",
@@ -1856,7 +1856,7 @@ if matchlink:
                 "PitchLineColor": "black",
                 "SonarPass": "#d4d6e3",
                 "SonarCarry": "red",
-                "HullColor": "red"
+                "HullColor": "darkblue"
             },
             "Scottish Premiership": {
                 "TextColor": "white",
