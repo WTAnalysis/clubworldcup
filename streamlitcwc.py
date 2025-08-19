@@ -1820,7 +1820,7 @@ if matchlink:
                 "PitchLineColor": "black",
                 "SonarPass": "#d4d6e3",
                 "SonarCarry": "red",
-                "HullColor": "#ede6cf"
+                "HullColor": "red"
             },
             "Championship": {
                 "TextColor": "black",
@@ -1829,7 +1829,7 @@ if matchlink:
                 "PitchLineColor": "black",
                 "SonarPass": "#d4d6e3",
                 "SonarCarry": "red",
-                "HullColor": "#ede6cf"
+                "HullColor": "red"
             },
             "Serie A": {
                 "TextColor": "",
@@ -1856,7 +1856,7 @@ if matchlink:
                 "PitchLineColor": "black",
                 "SonarPass": "#d4d6e3",
                 "SonarCarry": "red",
-                "HullColor": "#ede6cf"
+                "HullColor": "red"
             },
             "Scottish Premiership": {
                 "TextColor": "white",
@@ -2380,7 +2380,7 @@ if matchlink:
                     for index, row in playertouchmap.iterrows():
                         x = row['y']  # Assuming 'y' is the column name for x-coordinate
                         y = row['x']  # Assuming 'x' is the column name for y-coordinate
-                        axes[1].plot(x, y, marker='o', markeredgecolor=BackgroundColor, markerfacecolor='none', markersize=5)  # Adjust marker size, color, and transparency as needed
+                        axes[1].plot(x, y, marker='o', markeredgecolor=HullColor, markerfacecolor='none', markersize=5)  # Adjust marker size, color, and transparency as needed
             
                     x_coords = playertouchmap['y']  # Assuming 'y' is the column name for x-coordinate
                     y_coords = playertouchmap['x']  # Assuming 'x' is the column name for y-coordinate
