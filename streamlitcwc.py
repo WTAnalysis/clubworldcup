@@ -2635,13 +2635,58 @@ if matchlink:
         with tab3:
             st.header("Average Positions")
         
-            # --- Safety: fallbacks if color pickers weren’t added yet ---
+            # ---- pick the minute column safely ----
+            minute_col = "minute" if "minute" in df.columns else "timeMin"
+        
+            # ---- colours fallback ----
             try:
                 _hc1, _hc2, _ac1, _ac2 = homecolor1, homecolor2, awaycolor1, awaycolor2
             except NameError:
                 _hc1, _hc2, _ac1, _ac2 = "red", "white", "blue", "white"
         
-            # --- Build lineups (starters only) for each side ---
+            # ---- guard ----
+            if df.empty:
+                st.info("Not enough event data to compute average positions for this match.")
+                st.stop()
+        
+            # ---- compute slider bounds & half-time ----
+            min_minute = int(np.nanmin(df[minute_col]))
+            max_minute = int(np.nanmax(df[minute_col]))
+            # half-time = max minute seen in period 1 (if available)
+            if "periodId" in df.columns and (df["periodId"] == 1).any():
+                ht_minute = int(df.loc[df["periodId"] == 1, minute_col].max())
+                ht_label = f"(HT at {ht_minute}’)"
+                ht_pos_pct = 0 if max_minute == min_minute else 100 * (ht_minute - min_minute) / (max_minute - min_minute)
+            else:
+                ht_minute, ht_label, ht_pos_pct = None, "(HT unknown)", None
+        
+            # ---- slider ----
+            minute_range = st.slider(
+                f"Select Minute Range {ht_label}",
+                min_value=min_minute,
+                max_value=max_minute,
+                value=(min_minute, max_minute),
+                step=1,
+                key="avgpos_minute_range",
+            )
+        
+            # ---- visual HT marker under the slider (simple ruler) ----
+            if ht_minute is not None:
+                st.markdown(
+                    f"""
+                    <div style="position:relative;height:10px;margin-top:-6px;margin-bottom:10px;
+                                background:#e5e7eb;border-radius:6px;">
+                      <div style="position:absolute;left:{ht_pos_pct:.2f}%;top:-6px;width:2px;height:22px;background:#ef4444;"></div>
+                    </div>
+                    <div style="font-size:12px;opacity:0.8;">HT at {ht_minute}’</div>
+                    """,
+                    unsafe_allow_html=True,
+                )
+        
+            # ---- filter df by selected range ----
+            df_filtered = df[(df[minute_col] >= minute_range[0]) & (df[minute_col] <= minute_range[1])]
+        
+            # ---- build lineups (starters only) ----
             homelineup = starting_lineups[
                 (starting_lineups["team_name"] == teamname) &
                 (starting_lineups["is_starter"] == "yes")
@@ -2652,81 +2697,82 @@ if matchlink:
                 (starting_lineups["is_starter"] == "yes")
             ].copy()
         
-            # Guard: if df has no rows for those players (rare), avoid crash
-            if homelineup.empty or awaylineup.empty or df.empty:
-                st.info("Not enough event data to compute average positions for this match.")
-            else:
-                # --- Average locations for each player (home) ---
-                df_averages_home = (
-                    df[df["playerName"].isin(homelineup["player_name"])]
-                    .groupby("playerName", as_index=False)
-                    .agg({"x": "mean", "y": "mean"})
-                    .rename(columns={"playerName": "player_name"})
-                )
-                homeresult = pd.merge(homelineup, df_averages_home, on="player_name", how="left")
+            if homelineup.empty or awaylineup.empty or df_filtered.empty:
+                st.info("Not enough data in the selected range to compute average positions.")
+                st.stop()
         
-                # --- Average locations for each player (away) ---
-                df_averages_away = (
-                    df[df["playerName"].isin(awaylineup["player_name"])]
-                    .groupby("playerName", as_index=False)
-                    .agg({"x": "mean", "y": "mean"})
-                    .rename(columns={"playerName": "player_name"})
-                )
-                awayresult = pd.merge(awaylineup, df_averages_away, on="player_name", how="left")
+            # ---- averages (home) ----
+            df_averages_home = (
+                df_filtered[df_filtered["playerName"].isin(homelineup["player_name"])]
+                .groupby("playerName", as_index=False)
+                .agg({"x": "mean", "y": "mean"})
+                .rename(columns={"playerName": "player_name"})
+            )
+            homeresult = pd.merge(homelineup, df_averages_home, on="player_name", how="left")
         
-                # Some matches can have players with no tracked events; drop missing xy so the plot won’t error
-                homeresult = homeresult.dropna(subset=["x", "y"])
-                awayresult = awayresult.dropna(subset=["x", "y"])
+            # ---- averages (away) ----
+            df_averages_away = (
+                df_filtered[df_filtered["playerName"].isin(awaylineup["player_name"])]
+                .groupby("playerName", as_index=False)
+                .agg({"x": "mean", "y": "mean"})
+                .rename(columns={"playerName": "player_name"})
+            )
+            awayresult = pd.merge(awaylineup, df_averages_away, on="player_name", how="left")
         
-                # --- Draw pitch ---
-                from mplsoccer import Pitch
-                from matplotlib.font_manager import FontProperties
-                import matplotlib.pyplot as plt
+            homeresult = homeresult.dropna(subset=["x", "y"])
+            awayresult = awayresult.dropna(subset=["x", "y"])
         
-                # Safe fallbacks in case theme vars aren’t set yet
-                _pitch_color = "white"
-                _line_color = "black"
-                _bg_color = "white"
-                _text_color = "black"
-                try:
-                    _pitch_color = PitchColor or _pitch_color
-                    _line_color = PitchLineColor or _line_color
-                    _bg_color = BackgroundColor or _bg_color
-                    _text_color = TextColor or _text_color
-                except NameError:
-                    pass
+            # ---- draw pitch ----
+            from mplsoccer import Pitch, add_image
+            from matplotlib.font_manager import FontProperties
+            import matplotlib.pyplot as plt
         
-                pitch = Pitch(pitch_type="opta", pitch_color=_pitch_color, line_color=_line_color)
-                fig, ax = pitch.draw(figsize=(12, 8.25), constrained_layout=True, tight_layout=False)
-                fig.set_facecolor(_bg_color)
+            # optional theme vars if defined elsewhere
+            _pitch_color = "white"; _line_color = "black"; _bg_color = "white"; _text_color = "black"
+            try:
+                _pitch_color = PitchColor or _pitch_color
+                _line_color = PitchLineColor or _line_color
+                _bg_color = BackgroundColor or _bg_color
+                _text_color = TextColor or _text_color
+            except NameError:
+                pass
         
-                # --- Plot home ---
-                for _, r in homeresult.iterrows():
-                    pitch.scatter(r["x"], r["y"], s=425, color=_hc1, edgecolors=_hc2, linewidth=1, alpha=1, ax=ax)
-                    pitch.annotate(str(r["squad_number"]),
-                                   xy=(r["x"] - 0.15, r["y"] - 0.15),
-                                   color=_hc2, va="center", ha="center", size=8, weight="bold", ax=ax)
+            pitch = Pitch(pitch_type="opta", pitch_color=_pitch_color, line_color=_line_color)
+            fig, ax = pitch.draw(figsize=(12, 8.25), constrained_layout=True, tight_layout=False)
+            fig.set_facecolor(_bg_color)
         
-                # --- Plot away (flip to other direction) ---
-                for _, r in awayresult.iterrows():
-                    pitch.scatter(100 - r["x"], 100 - r["y"], s=425, color=_ac1, edgecolors=_ac2, linewidth=1, alpha=1, ax=ax)
-                    pitch.annotate(str(r["squad_number"]),
-                                   xy=(100 - r["x"] - 0.15, 100 - r["y"] - 0.15),
-                                   color=_ac2, va="center", ha="center", size=8, weight="bold", ax=ax)
+            # ---- plot home ----
+            for _, r in homeresult.iterrows():
+                pitch.scatter(r["x"], r["y"], s=425, color=_hc1, edgecolors=_hc2, linewidth=1, alpha=1, ax=ax)
+                pitch.annotate(str(r["squad_number"]),
+                               xy=(r["x"] - 0.15, r["y"] - 0.15),
+                               color=_hc2, va="center", ha="center", size=8, weight="bold", ax=ax)
         
-                # --- Title ---
-                title_font = FontProperties(family="Tahoma", size=15)
-                ax.set_title(f"{teamname} vs {opponentname} Average Positions",
-                             fontproperties=title_font, color=_text_color)
-                from mplsoccer import Pitch, add_image
-                ax_image = add_image(homeimage, fig, left=0.155, bottom=0.15, width=0.1, alpha=0.5, interpolation='hanning')
-                ax_image = add_image(awayimage, fig, left=0.765, bottom=0.15, width=0.1, alpha=0.5, interpolation='hanning')
-                ax_image = add_image(wtaimaged, fig, left=0.462, bottom=0.45, width=0.1, alpha=0.25, interpolation='hanning')
-                # NOTE: Removed add_image calls (homeimage/awayimage/wtaimaged) to avoid undefined vars in Streamlit.
-                # If you want logos here, let me know and I’ll wire them with safe guards.
+            # ---- plot away (flipped) ----
+            for _, r in awayresult.iterrows():
+                pitch.scatter(100 - r["x"], 100 - r["y"], s=425, color=_ac1, edgecolors=_ac2, linewidth=1, alpha=1, ax=ax)
+                pitch.annotate(str(r["squad_number"]),
+                               xy=(100 - r["x"] - 0.15, 100 - r["y"] - 0.15),
+                               color=_ac2, va="center", ha="center", size=8, weight="bold", ax=ax)
         
-                st.pyplot(fig)
-                plt.close(fig)
+            # ---- title ----
+            title_font = FontProperties(family="Tahoma", size=15)
+            ht_piece = f" | HT {ht_minute}’" if ht_minute is not None else ""
+            ax.set_title(
+                f"{teamname} vs {opponentname} — Average Positions {minute_range[0]}’–{minute_range[1]} mins",
+                fontproperties=title_font, color=_text_color
+            )
+        
+            # (optional) logos if those images are loaded above
+            try:
+                add_image(homeimage, fig, left=0.155, bottom=0.15, width=0.1, alpha=0.5, interpolation='hanning')
+                add_image(awayimage, fig, left=0.765, bottom=0.15, width=0.1, alpha=0.5, interpolation='hanning')
+                add_image(wtaimaged, fig, left=0.462, bottom=0.45, width=0.1, alpha=0.25, interpolation='hanning')
+            except Exception:
+                pass
+        
+            st.pyplot(fig)
+            plt.close(fig)
 
         with tab4:
             st.subheader("Player Actions")
