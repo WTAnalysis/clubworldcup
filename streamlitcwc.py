@@ -2635,8 +2635,17 @@ if matchlink:
         with tab3:
             st.header("Average Positions")
         
-            # ---- pick the minute column safely ----
-            minute_col = "minute" if "minute" in df.columns else "timeMin"
+            import numpy as np
+            import pandas as pd
+        
+            # ---- find a usable minute column ----
+            if "minute" in df.columns:
+                minute_col = "minute"
+            elif "timeMin" in df.columns:
+                minute_col = "timeMin"
+            else:
+                st.info("No 'minute' or 'timeMin' column found.")
+                st.stop()
         
             # ---- colours fallback ----
             try:
@@ -2644,21 +2653,40 @@ if matchlink:
             except NameError:
                 _hc1, _hc2, _ac1, _ac2 = "red", "white", "blue", "white"
         
-            # ---- guard ----
+            # ---- base guard ----
             if df.empty:
                 st.info("Not enough event data to compute average positions for this match.")
                 st.stop()
         
-            # ---- compute slider bounds & half-time ----
-            min_minute = int(np.nanmin(df[minute_col]))
-            max_minute = int(np.nanmax(df[minute_col]))
-            # half-time = max minute seen in period 1 (if available)
-            if "periodId" in df.columns and (df["periodId"] == 1).any():
-                ht_minute = int(df.loc[df["periodId"] == 1, minute_col].max())
-                ht_label = f"(HT at {ht_minute}’)"
-                ht_pos_pct = 0 if max_minute == min_minute else 100 * (ht_minute - min_minute) / (max_minute - min_minute)
-            else:
-                ht_minute, ht_label, ht_pos_pct = None, "(HT unknown)", None
+            # ---- coerce minutes to numeric & guard ----
+            minutes = pd.to_numeric(df[minute_col], errors="coerce")
+            if minutes.notna().sum() == 0:
+                st.info("No valid minute data available for this match.")
+                st.stop()
+        
+            # Attach numeric minutes so our filters never touch non-numeric values
+            df = df.copy()
+            df["_minutes"] = minutes
+        
+            # ---- compute slider bounds ----
+            min_minute = int(np.nanmin(df["_minutes"]))
+            max_minute = int(np.nanmax(df["_minutes"]))
+        
+            # If all events share one minute, widen the range so Streamlit's range slider works
+            if min_minute == max_minute:
+                max_minute = min_minute + 1
+        
+            # ---- compute half-time (max minute in period 1, if present) ----
+            ht_minute, ht_label, ht_pos_pct = None, "(HT unknown)", None
+            if "periodId" in df.columns:
+                mask_p1 = (df["periodId"] == 1) & df["_minutes"].notna()
+                if mask_p1.any():
+                    ht_val = df.loc[mask_p1, "_minutes"].max()
+                    if pd.notna(ht_val):
+                        ht_minute = int(ht_val)
+                        ht_label = f"(HT at {ht_minute}’)"
+                        rng = (max_minute - min_minute)
+                        ht_pos_pct = 0 if rng == 0 else 100 * (ht_minute - min_minute) / rng
         
             # ---- slider ----
             minute_range = st.slider(
@@ -2671,7 +2699,7 @@ if matchlink:
             )
         
             # ---- visual HT marker under the slider (simple ruler) ----
-            if ht_minute is not None:
+            if ht_minute is not None and ht_pos_pct is not None:
                 st.markdown(
                     f"""
                     <div style="position:relative;height:10px;margin-top:-6px;margin-bottom:10px;
@@ -2683,8 +2711,11 @@ if matchlink:
                     unsafe_allow_html=True,
                 )
         
-            # ---- filter df by selected range ----
-            df_filtered = df[(df[minute_col] >= minute_range[0]) & (df[minute_col] <= minute_range[1])]
+            # ---- filter df by selected range (using numeric minutes) ----
+            df_filtered = df[df["_minutes"].between(minute_range[0], minute_range[1], inclusive="both")].copy()
+            if df_filtered.empty:
+                st.info("Not enough data in the selected range to compute average positions.")
+                st.stop()
         
             # ---- build lineups (starters only) ----
             homelineup = starting_lineups[
@@ -2697,30 +2728,37 @@ if matchlink:
                 (starting_lineups["is_starter"] == "yes")
             ].copy()
         
-            if homelineup.empty or awaylineup.empty or df_filtered.empty:
-                st.info("Not enough data in the selected range to compute average positions.")
+            if homelineup.empty or awaylineup.empty:
+                st.info("Starting lineups are missing; cannot compute average positions.")
                 st.stop()
+        
+            # ---- ensure x/y are numeric before averaging ----
+            df_filtered["x"] = pd.to_numeric(df_filtered.get("x"), errors="coerce")
+            df_filtered["y"] = pd.to_numeric(df_filtered.get("y"), errors="coerce")
         
             # ---- averages (home) ----
             df_averages_home = (
                 df_filtered[df_filtered["playerName"].isin(homelineup["player_name"])]
+                .dropna(subset=["x", "y"])
                 .groupby("playerName", as_index=False)
                 .agg({"x": "mean", "y": "mean"})
                 .rename(columns={"playerName": "player_name"})
             )
-            homeresult = pd.merge(homelineup, df_averages_home, on="player_name", how="left")
+            homeresult = pd.merge(homelineup, df_averages_home, on="player_name", how="left").dropna(subset=["x", "y"])
         
             # ---- averages (away) ----
             df_averages_away = (
                 df_filtered[df_filtered["playerName"].isin(awaylineup["player_name"])]
+                .dropna(subset=["x", "y"])
                 .groupby("playerName", as_index=False)
                 .agg({"x": "mean", "y": "mean"})
                 .rename(columns={"playerName": "player_name"})
             )
-            awayresult = pd.merge(awaylineup, df_averages_away, on="player_name", how="left")
+            awayresult = pd.merge(awaylineup, df_averages_away, on="player_name", how="left").dropna(subset=["x", "y"])
         
-            homeresult = homeresult.dropna(subset=["x", "y"])
-            awayresult = awayresult.dropna(subset=["x", "y"])
+            if homeresult.empty and awayresult.empty:
+                st.info("No positional events available for starters in the selected range.")
+                st.stop()
         
             # ---- draw pitch ----
             from mplsoccer import Pitch, add_image
@@ -2731,9 +2769,9 @@ if matchlink:
             _pitch_color = "white"; _line_color = "black"; _bg_color = "white"; _text_color = "black"
             try:
                 _pitch_color = PitchColor or _pitch_color
-                _line_color = PitchLineColor or _line_color
-                _bg_color = BackgroundColor or _bg_color
-                _text_color = TextColor or _text_color
+                _line_color  = PitchLineColor or _line_color
+                _bg_color    = BackgroundColor or _bg_color
+                _text_color  = TextColor or _text_color
             except NameError:
                 pass
         
@@ -2744,22 +2782,24 @@ if matchlink:
             # ---- plot home ----
             for _, r in homeresult.iterrows():
                 pitch.scatter(r["x"], r["y"], s=425, color=_hc1, edgecolors=_hc2, linewidth=1, alpha=1, ax=ax)
-                pitch.annotate(str(r["squad_number"]),
-                               xy=(r["x"] - 0.15, r["y"] - 0.15),
-                               color=_hc2, va="center", ha="center", size=8, weight="bold", ax=ax)
+                if pd.notna(r.get("squad_number")):
+                    pitch.annotate(str(int(r["squad_number"])),
+                                   xy=(r["x"] - 0.15, r["y"] - 0.15),
+                                   color=_hc2, va="center", ha="center", size=8, weight="bold", ax=ax)
         
-            # ---- plot away (flipped) ----
+            # ---- plot away (flipped to the other half) ----
             for _, r in awayresult.iterrows():
-                pitch.scatter(100 - r["x"], 100 - r["y"], s=425, color=_ac1, edgecolors=_ac2, linewidth=1, alpha=1, ax=ax)
-                pitch.annotate(str(r["squad_number"]),
-                               xy=(100 - r["x"] - 0.15, 100 - r["y"] - 0.15),
-                               color=_ac2, va="center", ha="center", size=8, weight="bold", ax=ax)
+                px, py = (100 - r["x"], 100 - r["y"])
+                pitch.scatter(px, py, s=425, color=_ac1, edgecolors=_ac2, linewidth=1, alpha=1, ax=ax)
+                if pd.notna(r.get("squad_number")):
+                    pitch.annotate(str(int(r["squad_number"])),
+                                   xy=(px - 0.15, py - 0.15),
+                                   color=_ac2, va="center", ha="center", size=8, weight="bold", ax=ax)
         
             # ---- title ----
             title_font = FontProperties(family="Tahoma", size=15)
-            ht_piece = f" | HT {ht_minute}’" if ht_minute is not None else ""
             ax.set_title(
-                f"{teamname} vs {opponentname} — Average Positions {minute_range[0]}’–{minute_range[1]}mins",
+                f"{teamname} vs {opponentname} — Average Positions {minute_range[0]}’–{minute_range[1]}’",
                 fontproperties=title_font, color=_text_color
             )
         
