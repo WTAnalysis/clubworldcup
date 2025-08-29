@@ -2664,15 +2664,13 @@ if matchlink:
                 st.info("No valid minute data available for this match.")
                 st.stop()
         
-            # Attach numeric minutes so our filters never touch non-numeric values
+            # Work on a copy to keep things clean
             df = df.copy()
             df["_minutes"] = minutes
         
             # ---- compute slider bounds ----
             min_minute = int(np.nanmin(df["_minutes"]))
             max_minute = int(np.nanmax(df["_minutes"]))
-        
-            # If all events share one minute, widen the range so Streamlit's range slider works
             if min_minute == max_minute:
                 max_minute = min_minute + 1
         
@@ -2717,6 +2715,14 @@ if matchlink:
                 st.info("Not enough data in the selected range to compute average positions.")
                 st.stop()
         
+            # ---- NEW: exclude sub on/off events from the calculation ----
+            # Robust to casing and non-strings; if typeId missing, we just keep everything.
+            if "typeId" in df_filtered.columns:
+                _type = df_filtered["typeId"].astype(str).str.lower()
+                df_calc = df_filtered[~_type.isin(["player on", "player off"])].copy()
+            else:
+                df_calc = df_filtered
+        
             # ---- build lineups (starters only) ----
             homelineup = starting_lineups[
                 (starting_lineups["team_name"] == teamname) &
@@ -2733,12 +2739,12 @@ if matchlink:
                 st.stop()
         
             # ---- ensure x/y are numeric before averaging ----
-            df_filtered["x"] = pd.to_numeric(df_filtered.get("x"), errors="coerce")
-            df_filtered["y"] = pd.to_numeric(df_filtered.get("y"), errors="coerce")
+            df_calc["x"] = pd.to_numeric(df_calc.get("x"), errors="coerce")
+            df_calc["y"] = pd.to_numeric(df_calc.get("y"), errors="coerce")
         
             # ---- averages (home) ----
             df_averages_home = (
-                df_filtered[df_filtered["playerName"].isin(homelineup["player_name"])]
+                df_calc[df_calc["playerName"].isin(homelineup["player_name"])]
                 .dropna(subset=["x", "y"])
                 .groupby("playerName", as_index=False)
                 .agg({"x": "mean", "y": "mean"})
@@ -2748,7 +2754,7 @@ if matchlink:
         
             # ---- averages (away) ----
             df_averages_away = (
-                df_filtered[df_filtered["playerName"].isin(awaylineup["player_name"])]
+                df_calc[df_calc["playerName"].isin(awaylineup["player_name"])]
                 .dropna(subset=["x", "y"])
                 .groupby("playerName", as_index=False)
                 .agg({"x": "mean", "y": "mean"})
@@ -2813,7 +2819,6 @@ if matchlink:
         
             st.pyplot(fig)
             plt.close(fig)
-
         with tab4:
             st.subheader("Player Actions")
         
