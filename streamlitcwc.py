@@ -1804,7 +1804,7 @@ if matchlink:
                 "SonarCarry": "yellow",
                 "HullColor": "#381d54"
             },
-            "EUR-UEFAEuros": {
+            "World Cup Qualifiers (UEFA)": {
                 "TextColor": "white",
                 "BackgroundColor": "#973d52",
                 "PitchColor": "#e2e2e3",
