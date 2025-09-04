@@ -1811,7 +1811,7 @@ if matchlink:
                 "PitchLineColor": "black",
                 "SonarPass": "#e2e2e3",
                 "SonarCarry": "#f3da15",
-                "HullColor": "#ebf3fc"
+                "HullColor": "#973d52"
             },
             "League One": {
                 "TextColor": "black",
