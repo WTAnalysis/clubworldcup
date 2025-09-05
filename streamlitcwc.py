@@ -1940,13 +1940,40 @@ if matchlink:
                 "HullColor": "#da9240"
             },
             "WSL": {
-                "TextColor": "black",
-                "BackgroundColor": "#f5f2f3",
-                "PitchColor": "#ffe3e9",
+                "TextColor": "white",
+                "BackgroundColor": "#ad2eaf",
+                "PitchColor": "#f1c6d2",
                 "PitchLineColor": "black",
                 "SonarPass": "red",
                 "SonarCarry": "#87cbfc",
-                "HullColor": "darkblue"
+                "HullColor": "#ad2eaf"
+            },
+            "WSL (RDA)": {
+                "TextColor": "white",
+                "BackgroundColor": "#A7192B",
+                "PitchColor": "#C79A53",
+                "PitchLineColor": "black",
+                "SonarPass": "red",
+                "SonarCarry": "#87cbfc",
+                "HullColor": "#A7192B"
+            },
+            "WSL2": {
+                "TextColor": "white",
+                "BackgroundColor": "#ad2eaf",
+                "PitchColor": "#f1c6d2",
+                "PitchLineColor": "black",
+                "SonarPass": "red",
+                "SonarCarry": "#87cbfc",
+                "HullColor": "#ad2eaf"
+            },
+            "WSL2 (RDA)": {
+                "TextColor": "white",
+                "BackgroundColor": "#A7192B",
+                "PitchColor": "#C79A53",
+                "PitchLineColor": "black",
+                "SonarPass": "red",
+                "SonarCarry": "#87cbfc",
+                "HullColor": "#A7192B"
             },
             "La Liga": {
                 "TextColor": "#ff4b44",
