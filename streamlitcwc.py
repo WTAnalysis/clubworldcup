@@ -1951,7 +1951,7 @@ if matchlink:
             "WSL (RDA)": {
                 "TextColor": "white",
                 "BackgroundColor": "#A7192B",
-                "PitchColor": "#C79A53",
+                "PitchColor": "#B3B3B3",
                 "PitchLineColor": "black",
                 "SonarPass": "red",
                 "SonarCarry": "#87cbfc",
@@ -1969,7 +1969,7 @@ if matchlink:
             "WSL2 (RDA)": {
                 "TextColor": "white",
                 "BackgroundColor": "#A7192B",
-                "PitchColor": "#C79A53",
+                "PitchColor": "#B3B3B3",
                 "PitchLineColor": "black",
                 "SonarPass": "red",
                 "SonarCarry": "#87cbfc",
