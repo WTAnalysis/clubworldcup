@@ -1858,6 +1858,15 @@ if matchlink:
                 "SonarCarry": "red",
                 "HullColor": "darkblue"
             },
+            "EFL Trophy": {
+                "TextColor": "black",
+                "BackgroundColor": "#ede6cf",
+                "PitchColor": "#d4d6e3",
+                "PitchLineColor": "black",
+                "SonarPass": "#d4d6e3",
+                "SonarCarry": "red",
+                "HullColor": "darkblue"
+            },
             "Scottish Premiership": {
                 "TextColor": "white",
                 "BackgroundColor": "#212b5a",
@@ -1948,15 +1957,6 @@ if matchlink:
                 "SonarCarry": "#87cbfc",
                 "HullColor": "#ad2eaf"
             },
-            "WSL (RDA)": {
-                "TextColor": "white",
-                "BackgroundColor": "#A7192B",
-                "PitchColor": "#B3B3B3",
-                "PitchLineColor": "black",
-                "SonarPass": "red",
-                "SonarCarry": "#87cbfc",
-                "HullColor": "#A7192B"
-            },
             "WSL2": {
                 "TextColor": "white",
                 "BackgroundColor": "#ad2eaf",
@@ -1965,15 +1965,6 @@ if matchlink:
                 "SonarPass": "red",
                 "SonarCarry": "#87cbfc",
                 "HullColor": "#ad2eaf"
-            },
-            "WSL2 (RDA)": {
-                "TextColor": "white",
-                "BackgroundColor": "#A7192B",
-                "PitchColor": "#B3B3B3",
-                "PitchLineColor": "black",
-                "SonarPass": "red",
-                "SonarCarry": "#87cbfc",
-                "HullColor": "#A7192B"
             },
             "La Liga": {
                 "TextColor": "#ff4b44",
