@@ -2330,7 +2330,8 @@ if matchlink:
                     #teamname = anderson.iloc[0]['team_name']
                     teamlogoid = teamdata.loc[teamdata['name'] == teamname, 'id'].values[0]
                     opponentname2 = teamdata.loc[teamdata['name'] != teamname, 'name'].values[0]
-            
+                    if teamlogoid == "cpxv65ua10liq2k8ovsezf7ox":
+                        teamlogoid = "1qtaiy11gswx327s0vkibf70n"           
                     URL = f"https://omo.akamai.opta.net/image.php?h=www.scoresway.com&sport=football&entity=team&description=badges&dimensions=150&id={teamlogoid}"
                     # EFFIONG https://cdn5.wyscout.com/photos/players/public/g144828_100x130.png
                     teamimage = Image.open(urlopen(URL))
@@ -2549,6 +2550,11 @@ if matchlink:
             # ---------- images ----------
             hometeamlogo = teamdata.iloc[0, 0]
             awayteamlogo = teamdata.iloc[1, 0]
+            if hometeamlogo == "cpxv65ua10liq2k8ovsezf7ox":
+                hometeamlogo = "1qtaiy11gswx327s0vkibf70n"
+                
+            if awayteamlogo == "cpxv65ua10liq2k8ovsezf7ox":
+                awayteamlogo = "1qtaiy11gswx327s0vkibf70n"  
             HOMEURL = f"https://omo.akamai.opta.net/image.php?h=www.scoresway.com&sport=football&entity=team&description=badges&dimensions=150&id={hometeamlogo}"
             AWAYURL = f"https://omo.akamai.opta.net/image.php?h=www.scoresway.com&sport=football&entity=team&description=badges&dimensions=150&id={awayteamlogo}"
         
