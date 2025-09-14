@@ -930,98 +930,105 @@ if matchlink:
         df = df.iloc[:, :100]
         if 'assist' not in df.columns:
             df['assist'] = 0  # or np.nan if you prefer missing values
-        df["typeId"] = df["typeId"].map(event_map)
-        qualifier_columns = [f'qualifier/{i}/qualifierId' for i in range(16)]
-        df[qualifier_columns] = df[qualifier_columns].applymap(lambda x: qualifier_map.get(x, x))
-        df['outcome'] = df['outcome'].replace({0: 'Unsuccessful', 1: 'Successful'})
-        df.rename(columns={'contestantId': 'team_name'}, inplace=True)
-        df = df.merge(teamdata[['id', 'name']], how='left', left_on='team_name', right_on='id')
-        df.drop(columns=['team_name', 'id_y'], inplace=True)
-        df.rename(columns={'name': 'team_name', 'id_x': 'id'}, inplace=True)
-        #df['end_x'] = 0  # Initialize with default values
-        #df['end_y'] = 0
-        #for i in range(16):
-        #    end_x_mask = df[f'qualifier/{i}/qualifierId'] == 'Pass End X'
-        #    end_y_mask = df[f'qualifier/{i}/qualifierId'] == 'Pass End Y'
-        #    df.loc[end_x_mask, 'end_x'] = df.loc[end_x_mask, f'qualifier/{i}/value']
-        #    df.loc[end_y_mask, 'end_y'] = df.loc[end_y_mask, f'qualifier/{i}/value']
-        #df['end_x'] = pd.to_numeric(df['end_x'], errors='coerce').fillna(0)
-        #df['end_y'] = pd.to_numeric(df['end_y'], errors='coerce').fillna(0)
-        import re
-
-        # Ensure these columns exist
-        if 'end_x' not in df.columns:
-            df['end_x'] = pd.NA
-        if 'end_y' not in df.columns:
-            df['end_y'] = pd.NA
-
-        # Dynamically determine max qualifier index
+        df["typeId"] = df["typeId"].map(event_map).fillna(df["typeId"])
+        
+        # Build the requested qualifier column names (0..15), then keep only those present
+        qualifier_columns_requested = [f"qualifier/{i}/qualifierId" for i in range(16)]
+        qualifier_cols = [c for c in qualifier_columns_requested if c in df.columns]
+        
+        # Map qualifier ids -> names only on existing columns
+        if qualifier_cols:
+            df[qualifier_cols] = df[qualifier_cols].applymap(lambda x: qualifier_map.get(x, x))
+        
+        # The rest of your transformations
+        df["outcome"] = df["outcome"].replace({0: "Unsuccessful", 1: "Successful"})
+        df.rename(columns={"contestantId": "team_name"}, inplace=True)
+        df = df.merge(teamdata[["id", "name"]], how="left", left_on="team_name", right_on="id")
+        df.drop(columns=["team_name", "id_y"], inplace=True)
+        df.rename(columns={"name": "team_name", "id_x": "id"}, inplace=True)
+        
+        # -------- Pass End X / Y extraction (robust to missing qualifier slots) --------
+        # Ensure end_x/end_y exist
+        if "end_x" not in df.columns:
+            df["end_x"] = pd.NA
+        if "end_y" not in df.columns:
+            df["end_y"] = pd.NA
+        
+        # Dynamically determine max qualifier index from existing columns
         qualifier_indices = [
-            int(match.group(1)) for col in df.columns
-            if (match := re.match(r'qualifier/(\d+)/', col))
+            int(m.group(1)) for col in df.columns
+            if (m := re.match(r"qualifier/(\d+)/", col))
         ]
-        max_index = max(qualifier_indices, default=0)
-
+        max_index = max(qualifier_indices, default=-1)  # -1 so the loop is skipped if none
+        
         # Loop over present qualifier slots
         for i in range(max_index + 1):
-            value_col = f'qualifier/{i}/value'
-            id_col = f'qualifier/{i}/qualifierId'
-
+            value_col = f"qualifier/{i}/value"
+            id_col = f"qualifier/{i}/qualifierId"
             if value_col not in df.columns or id_col not in df.columns:
                 continue
-
-            end_x_mask = df[id_col] == 'Pass End X'
-            end_y_mask = df[id_col] == 'Pass End Y'
-
-            df.loc[end_x_mask, 'end_x'] = pd.to_numeric(df.loc[end_x_mask, value_col], errors='coerce')
-            df.loc[end_y_mask, 'end_y'] = pd.to_numeric(df.loc[end_y_mask, value_col], errors='coerce')
-
-        # Final clean up
-        df['end_x'] = df['end_x'].fillna(0)
-        df['end_y'] = df['end_y'].fillna(0)
-
-
-
-        df['throwin'] = df[qualifier_columns].apply(lambda row: 'Throw-in' in row.values, axis=1).astype(int)
-        df['corner'] = df[qualifier_columns].apply(lambda row: 'Corner taken' in row.values, axis=1).astype(int)
-        df['freekick'] = df[qualifier_columns].apply(lambda row: 'Free-kick taken' in row.values, axis=1).astype(int)
-        df['goalkick'] = df[qualifier_columns].apply(lambda row: 'Goal Kick' in row.values, axis=1).astype(int)
-        df['cross'] = df[qualifier_columns].apply(lambda row: 'Cross' in row.values, axis=1).astype(int)
-        df['longball'] = df[qualifier_columns].apply(lambda row: 'Long ball' in row.values, axis=1).astype(int)
-        df['switch'] = df[qualifier_columns].apply(lambda row: 'Switch of play' in row.values, axis=1).astype(int)
-        df['launch'] = df[qualifier_columns].apply(lambda row: 'Launch' in row.values, axis=1).astype(int)
-        df['secondassist'] = df[qualifier_columns].apply(lambda row: '2nd assist' in row.values, axis=1).astype(int)
-        df['head'] = df[qualifier_columns].apply(lambda row: 'Head' in row.values, axis=1).astype(int)
-        df['leftfoot'] = df[qualifier_columns].apply(lambda row: 'Left footed' in row.values, axis=1).astype(int)
-        df['rightfoot'] = df[qualifier_columns].apply(lambda row: 'Right footed' in row.values, axis=1).astype(int)
-        df['otherbody'] = df[qualifier_columns].apply(lambda row: 'Other body part' in row.values, axis=1).astype(int)
-        df['fastbreakshot'] = df[qualifier_columns].apply(lambda row: 'Fast break' in row.values, axis=1).astype(int)
-        df['setpieceshot'] = df[qualifier_columns].apply(lambda row: 'Set piece' in row.values, axis=1).astype(int)
-        df['freekickshot'] = df[qualifier_columns].apply(lambda row: 'Free kick' in row.values, axis=1).astype(int)
-        df['cornershot'] = df[qualifier_columns].apply(lambda row: 'From corner' in row.values, axis=1).astype(int)
-        df['throwinshot'] = df[qualifier_columns].apply(lambda row: 'Throw-in set piece' in row.values, axis=1).astype(int)
-        df['dfreekickshot'] = df[qualifier_columns].apply(lambda row: 'Direct free' in row.values, axis=1).astype(int)
-        df['penaltyshot'] = df[qualifier_columns].apply(lambda row: 'Penalty' in row.values, axis=1).astype(int)
-        #df['owngoal'] = df[qualifier_columns].apply(lambda row: 'Own goal' in row.values, axis=1).astype(int)
-        #df['owngoal'] = df[qualifier_columns].apply(lambda row: any(val in ['OWN_GOAL', 'Own goal'] for val in row.values), axis=1).astype(int)
-        df['owngoal'] = df.iloc[:, 16:].apply(
-            lambda row: any(
-                isinstance(val, str) and val.strip().lower() in ['own goal', 'own_goal']
-                for val in row.values
-            ),
-            axis=1
-        ).astype(int)
-        df.loc[df['owngoal'] == 1, 'typeId'] = 'Own Goal'
-        df['bigchance'] = df[qualifier_columns].apply(lambda row: 'Big chance' in row.values, axis=1).astype(int)
-        df['hitwoodwork'] = df[qualifier_columns].apply(lambda row: 'Hit woodwork' in row.values, axis=1).astype(int)
-        df['lastman'] = df[qualifier_columns].apply(lambda row: 'Last line' in row.values, axis=1).astype(int)
-        df['errorshot'] = df[qualifier_columns].apply(lambda row: 'Leading to attempt' in row.values, axis=1).astype(int)
-        df['errorgoal'] = df[qualifier_columns].apply(lambda row: 'Leading to goal' in row.values, axis=1).astype(int)
-        df['yellowcard'] = df[qualifier_columns].apply(lambda row: 'Yellow Card' in row.values, axis=1).astype(int)
-        df['yellowcard2'] = df[qualifier_columns].apply(lambda row: 'Second yellow' in row.values, axis=1).astype(int)
-        df['redcard'] = df[qualifier_columns].apply(lambda row: 'Red Card' in row.values, axis=1).astype(int)
-        df['shotblocked'] = df[qualifier_columns].apply(lambda row: 'Blocked' in row.values, axis=1).astype(int)
-
+        
+            end_x_mask = df[id_col] == "Pass End X"
+            end_y_mask = df[id_col] == "Pass End Y"
+        
+            df.loc[end_x_mask, "end_x"] = pd.to_numeric(df.loc[end_x_mask, value_col], errors="coerce")
+            df.loc[end_y_mask, "end_y"] = pd.to_numeric(df.loc[end_y_mask, value_col], errors="coerce")
+        
+        # Final clean up for end coords
+        df["end_x"] = df["end_x"].fillna(0)
+        df["end_y"] = df["end_y"].fillna(0)
+        
+        # -------- Qualifier-driven flags (safe even if no qualifier columns exist) --------
+        def has_qual(label: str) -> pd.Series:
+            if qualifier_cols:
+                # vectorized: check if any qualifier col equals the label on each row
+                return df[qualifier_cols].eq(label).any(axis=1).astype(int)
+            else:
+                return pd.Series(0, index=df.index, dtype=int)
+        
+        df["throwin"]       = has_qual("Throw-in")
+        df["corner"]        = has_qual("Corner taken")
+        df["freekick"]      = has_qual("Free-kick taken")
+        df["goalkick"]      = has_qual("Goal Kick")
+        df["cross"]         = has_qual("Cross")
+        df["longball"]      = has_qual("Long ball")
+        df["switch"]        = has_qual("Switch of play")
+        df["launch"]        = has_qual("Launch")
+        df["secondassist"]  = has_qual("2nd assist")
+        df["head"]          = has_qual("Head")
+        df["leftfoot"]      = has_qual("Left footed")
+        df["rightfoot"]     = has_qual("Right footed")
+        df["otherbody"]     = has_qual("Other body part")
+        df["fastbreakshot"] = has_qual("Fast break")
+        df["setpieceshot"]  = has_qual("Set piece")
+        df["freekickshot"]  = has_qual("Free kick")
+        df["cornershot"]    = has_qual("From corner")
+        df["throwinshot"]   = has_qual("Throw-in set piece")
+        df["dfreekickshot"] = has_qual("Direct free")
+        df["penaltyshot"]   = has_qual("Penalty")
+        df["bigchance"]     = has_qual("Big chance")
+        df["hitwoodwork"]   = has_qual("Hit woodwork")
+        df["lastman"]       = has_qual("Last line")
+        df["errorshot"]     = has_qual("Leading to attempt")
+        df["errorgoal"]     = has_qual("Leading to goal")
+        df["yellowcard"]    = has_qual("Yellow Card")
+        df["yellowcard2"]   = has_qual("Second yellow")
+        df["redcard"]       = has_qual("Red Card")
+        df["shotblocked"]   = has_qual("Blocked")
+        
+        # Own goal detection (same logic as before, but scoped to qualifier cols)
+        if qualifier_cols:
+            df["owngoal"] = df[qualifier_cols].apply(
+                lambda row: any(
+                    isinstance(v, str) and v.strip().lower() in {"own goal", "own_goal"}
+                    for v in row.values
+                ),
+                axis=1
+            ).astype(int)
+        else:
+            df["owngoal"] = 0
+        
+        df.loc[df["owngoal"] == 1, "typeId"] = "Own Goal"
         df = df.loc[df['typeId'] !=40]
         df = df.loc[df['typeId'] !="Deleted event"]
 
