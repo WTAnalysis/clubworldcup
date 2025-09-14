@@ -2331,7 +2331,9 @@ if matchlink:
                     teamlogoid = teamdata.loc[teamdata['name'] == teamname, 'id'].values[0]
                     opponentname2 = teamdata.loc[teamdata['name'] != teamname, 'name'].values[0]
                     if teamlogoid == "cpxv65ua10liq2k8ovsezf7ox":
-                        teamlogoid = "1qtaiy11gswx327s0vkibf70n"           
+                        teamlogoid = "1qtaiy11gswx327s0vkibf70n"  
+                    if teamlogoid == "7ft9s47h5gbc35sbndoswkdwl":
+                        teamlogoid = "1qtaiy11gswx327s0vkibf70n"  
                     URL = f"https://omo.akamai.opta.net/image.php?h=www.scoresway.com&sport=football&entity=team&description=badges&dimensions=150&id={teamlogoid}"
                     # EFFIONG https://cdn5.wyscout.com/photos/players/public/g144828_100x130.png
                     teamimage = Image.open(urlopen(URL))
@@ -2552,8 +2554,11 @@ if matchlink:
             awayteamlogo = teamdata.iloc[1, 0]
             if hometeamlogo == "cpxv65ua10liq2k8ovsezf7ox":
                 hometeamlogo = "1qtaiy11gswx327s0vkibf70n"
-                
+            if hometeamlogo == "7ft9s47h5gbc35sbndoswkdwl":
+                hometeamlogo = "1qtaiy11gswx327s0vkibf70n"  
             if awayteamlogo == "cpxv65ua10liq2k8ovsezf7ox":
+                awayteamlogo = "1qtaiy11gswx327s0vkibf70n"  
+            if awayteamlogo == "7ft9s47h5gbc35sbndoswkdwl":
                 awayteamlogo = "1qtaiy11gswx327s0vkibf70n"  
             HOMEURL = f"https://omo.akamai.opta.net/image.php?h=www.scoresway.com&sport=football&entity=team&description=badges&dimensions=150&id={hometeamlogo}"
             AWAYURL = f"https://omo.akamai.opta.net/image.php?h=www.scoresway.com&sport=football&entity=team&description=badges&dimensions=150&id={awayteamlogo}"
