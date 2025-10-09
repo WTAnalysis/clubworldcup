@@ -2055,6 +2055,15 @@ if matchlink:
                 "SonarCarry": "#87cbfc",
                 "HullColor": "darkblue"
             },
+            "International Friendly": {
+                "TextColor": "black",
+                "BackgroundColor": "#f5f2f3",
+                "PitchColor": "#ffe3e9",
+                "PitchLineColor": "black",
+                "SonarPass": "red",
+                "SonarCarry": "#87cbfc",
+                "HullColor": "darkblue"
+            },
             "Superligaen": {
                 "TextColor": "black",
                 "BackgroundColor": "#f5f2f3",
