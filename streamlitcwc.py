@@ -2085,11 +2085,20 @@ if matchlink:
             "A-League": {
                 "TextColor": "black",
                 "BackgroundColor": "#f5f2f3",
-                "PitchColor": "#ffe3e9",
+                "PitchColor": "#c2c5f3",
                 "PitchLineColor": "black",
                 "SonarPass": "red",
                 "SonarCarry": "#87cbfc",
-                "HullColor": "darkblue"
+                "HullColor": "yellow"
+            },
+            "A-League Women": {
+                "TextColor": "black",
+                "BackgroundColor": "#f5f2f3",
+                "PitchColor": "#c2c5f3",
+                "PitchLineColor": "black",
+                "SonarPass": "red",
+                "SonarCarry": "#87cbfc",
+                "HullColor": "yellow"
             },
             "Swiss Super League": {
                 "TextColor": "black",
