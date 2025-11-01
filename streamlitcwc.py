@@ -1173,6 +1173,8 @@ if matchlink:
         passthreattotal = passingthreat.groupby('playerName')['xT_value'].sum().reset_index()
         carrythreat = df.loc[df['typeId'] == 'Carry']
         carrythreat['y_diff'] = carrythreat['y'] - carrythreat['end_y']
+        carrythreat['x_diff'] = carrythreat['x'] - carrythreat['end_x']
+
         carrythreat = carrythreat.dropna(subset=['x1_bin', 'y1_bin', 'x2_bin', 'y2_bin'])
         carrythreat['x1_bin'] = carrythreat['x1_bin'].astype(int)
         carrythreat['y1_bin'] = carrythreat['y1_bin'].astype(int)
