@@ -2156,6 +2156,15 @@ if matchlink:
                 "SonarCarry": "yellow",
                 "HullColor": "#ebf3fc"
             },
+            "AFCON": {
+                "TextColor": "white",
+                "BackgroundColor": "#800000",
+                "PitchColor": "#e9fdf0",
+                "PitchLineColor": "black",
+                "SonarPass": "red",
+                "SonarCarry": "yellow",
+                "HullColor": "#800000"
+            },
             "INT-NationsLeagueAQ": {
                 "TextColor": "black",
                 "BackgroundColor": "#ebf3fc",
