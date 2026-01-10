@@ -2111,6 +2111,15 @@ if matchlink:
                 "SonarCarry": "#87cbfc",
                 "HullColor": "darkblue"
             },
+            "Greek Super League": {
+                "TextColor": "black",
+                "BackgroundColor": "#67bed9",
+                "PitchColor": "#e4f6fb",
+                "PitchLineColor": "black",
+                "SonarPass": "red",
+                "SonarCarry": "#87cbfc",
+                "HullColor": "darkblue"
+            },
             "INT-NationsLeagueA": {
                 "TextColor": "black",
                 "BackgroundColor": "#ebf3fc",
