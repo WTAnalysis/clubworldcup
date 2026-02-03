@@ -1813,6 +1813,16 @@ if matchlink:
                 "SonarCarry": "yellow",
                 "HullColor": "#381d54"
             },
+            "Eredivisie": {
+                            "TextColor": "white",
+                            "BackgroundColor": "#381d54",
+                            "PitchColor": "#f5f6fc",
+                            "PitchLineColor": "black",
+                            "SonarPass": "#f5f6fc",
+                            "SonarCarry": "yellow",
+                            "HullColor": "#381d54"
+            },
+
             "World Cup Qualifiers (UEFA)": {
                 "TextColor": "white",
                 "BackgroundColor": "#973d52",
