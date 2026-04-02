@@ -11,9 +11,9 @@ import requests
 import json
 import re
 import matplotlib.pyplot as plt
-import warnings
-from pandas.errors import SettingWithCopyWarning
-warnings.simplefilter(action="ignore", category=SettingWithCopyWarning)
+#import warnings
+#from pandas.errors import SettingWithCopyWarning
+#warnings.simplefilter(action="ignore", category=SettingWithCopyWarning)
 import pandas as pd
 import numpy as np
 from matplotlib.colors import to_rgba
@@ -23,6 +23,8 @@ import matplotlib.patheffects as path_effects
 import matplotlib.patches as patches
 from PIL import Image
 from matplotlib import colors as mcolors
+
+
 
 wtaimaged = Image.open("wtatransnew.png")
 st.set_page_config(page_title="WT Analysis - Match Visuals", layout="wide")
