@@ -2098,6 +2098,24 @@ if matchlink:
                 "SonarCarry": "#87cbfc",
                 "HullColor": "darkblue"
             },
+            "J-League": {
+                "TextColor": "white",
+                "BackgroundColor": "red",
+                "PitchColor": "white",
+                "PitchLineColor": "black",
+                "SonarPass": "red",
+                "SonarCarry": "#87cbfc",
+                "HullColor": "red"
+            },
+            "Allsvenskan": {
+                "TextColor": "yellow",
+                "BackgroundColor": "navy",
+                "PitchColor": "white",
+                "PitchLineColor": "black",
+                "SonarPass": "red",
+                "SonarCarry": "#87cbfc",
+                "HullColor": "navy"
+            },
             "A-League": {
                 "TextColor": "black",
                 "BackgroundColor": "#f5f2f3",
