@@ -2206,6 +2206,7 @@ if matchlink:
                 "SonarCarry": "yellow",
                 "HullColor": "#800000"
             },
+            
             "INT-NationsLeagueAQ": {
                 "TextColor": "black",
                 "BackgroundColor": "#ebf3fc",
@@ -2214,7 +2215,7 @@ if matchlink:
                 "SonarPass": "red",
                 "SonarCarry": "yellow",
                 "HullColor": "#ebf3fc"
-            }
+            },
             "Veikkausliga": {
                 "TextColor": "white",
                 "BackgroundColor": "blue",
@@ -2223,7 +2224,7 @@ if matchlink:
                 "SonarPass": "red",
                 "SonarCarry": "yellow",
                 "HullColor": "blue"
-            }
+            },
             "Eliteserien": {
                 "TextColor": "white",
                 "BackgroundColor": "darkred",
@@ -2232,7 +2233,7 @@ if matchlink:
                 "SonarPass": "red",
                 "SonarCarry": "yellow",
                 "HullColor": "darkred"
-            }
+            },
             "Eerste Divisie": {
                             "TextColor": "white",
                             "BackgroundColor": "#381d54",
@@ -2241,7 +2242,7 @@ if matchlink:
                             "SonarPass": "#f5f6fc",
                             "SonarCarry": "yellow",
                             "HullColor": "#381d54"
-            },
+            }
         }
 
         # Define the league you are working with
