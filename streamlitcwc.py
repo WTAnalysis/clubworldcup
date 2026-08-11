@@ -2215,7 +2215,33 @@ if matchlink:
                 "SonarCarry": "yellow",
                 "HullColor": "#ebf3fc"
             }
-
+            "Veikkausliga": {
+                "TextColor": "white",
+                "BackgroundColor": "blue",
+                "PitchColor": "#f2f2f2",
+                "PitchLineColor": "black",
+                "SonarPass": "red",
+                "SonarCarry": "yellow",
+                "HullColor": "blue"
+            }
+            "Eliteserien": {
+                "TextColor": "white",
+                "BackgroundColor": "darkred",
+                "PitchColor": "#f2f2f2",
+                "PitchLineColor": "black",
+                "SonarPass": "red",
+                "SonarCarry": "yellow",
+                "HullColor": "darkred"
+            }
+            "Eerste Divisie": {
+                            "TextColor": "white",
+                            "BackgroundColor": "#381d54",
+                            "PitchColor": "#f5f6fc",
+                            "PitchLineColor": "black",
+                            "SonarPass": "#f5f6fc",
+                            "SonarCarry": "yellow",
+                            "HullColor": "#381d54"
+            },
         }
 
         # Define the league you are working with
