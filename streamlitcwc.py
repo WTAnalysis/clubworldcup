@@ -1836,6 +1836,24 @@ if matchlink:
                 "SonarCarry": "#f3da15",
                 "HullColor": "#973d52"
             },
+            "UEFA Nations League": {
+                "TextColor": "white",
+                "BackgroundColor": "#973d52",
+                "PitchColor": "#e2e2e3",
+                "PitchLineColor": "black",
+                "SonarPass": "#e2e2e3",
+                "SonarCarry": "#f3da15",
+                "HullColor": "#973d52"
+            },
+            "UEFA U21 Qualifiers": {
+                "TextColor": "white",
+                "BackgroundColor": "#973d52",
+                "PitchColor": "#e2e2e3",
+                "PitchLineColor": "black",
+                "SonarPass": "#e2e2e3",
+                "SonarCarry": "#f3da15",
+                "HullColor": "#973d52"
+            },
             "League One": {
                 "TextColor": "black",
                 "BackgroundColor": "#ede6cf",
@@ -2072,6 +2090,24 @@ if matchlink:
                 "HullColor": "darkblue"
             },
             "International Friendly": {
+                "TextColor": "black",
+                "BackgroundColor": "#f5f2f3",
+                "PitchColor": "#ffe3e9",
+                "PitchLineColor": "black",
+                "SonarPass": "red",
+                "SonarCarry": "#87cbfc",
+                "HullColor": "darkblue"
+            },
+            "AFCON Qualifiers": {
+                "TextColor": "black",
+                "BackgroundColor": "#f5f2f3",
+                "PitchColor": "#ffe3e9",
+                "PitchLineColor": "black",
+                "SonarPass": "red",
+                "SonarCarry": "#87cbfc",
+                "HullColor": "darkblue"
+            },
+            "Kirin Cup": {
                 "TextColor": "black",
                 "BackgroundColor": "#f5f2f3",
                 "PitchColor": "#ffe3e9",
